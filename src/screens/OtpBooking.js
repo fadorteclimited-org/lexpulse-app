@@ -29,7 +29,7 @@ export default function OtpBooking() {
                         elevation={0}
                         title='Enter your PIN'
                         titleStyle={[style.apptitle, { color: theme.txt }]}
-                        leading={<TouchableOpacity onPress={() => navigation.navigate('ReviewSummary')}>
+                        leading={<TouchableOpacity onPress={() => navigation.goBack()}>
                             <Icon name="arrow-back"
                                 // style={{backgroundColor:Colors.secondary,}}  
                                 color={theme.txt} size={30}

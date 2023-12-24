@@ -38,7 +38,7 @@ export default function Profile() {
                 </View>
                 <View style={{ alignItems: 'center', marginTop: 20 }}>
                     <Image source={require('../../assets/image/user.png')} resizeMode='stretch' style={{ height: height / 7, width: width / 3.2 }} />
-                    <Text style={[style.title, { color: theme.txt, marginTop: 15 }]}>Andrew Ainsley</Text>
+                    <Text style={[style.title, { color: theme.txt, marginTop: 15 }]}>Kwame Sarpong</Text>
                 </View>
                 <ScrollView showsVerticalScrollIndicator={false}>
                     <View style={[style.divider, { backgroundColor: theme.border, marginVertical: 15 }]}></View>

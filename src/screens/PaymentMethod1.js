@@ -27,7 +27,7 @@ export default function PaymentMethod1() {
                     elevation={0}
                     title='Payments'
                     titleStyle={[style.apptitle, { color: theme.txt }]}
-                    leading={<TouchableOpacity onPress={() => navigation.navigate('BookEvent2')}>
+                    leading={<TouchableOpacity onPress={() => navigation.goBack()}>
                         <Icon name="arrow-back"
                             color={theme.txt} size={30}
                         />

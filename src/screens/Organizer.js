@@ -29,9 +29,9 @@ const Tabs = () => {
                 swipeEnabled:false,
             }}>
             <Tab.Screen name="Events" component={Musiclist} />
-            <Tab.Screen name="Collectins" component={All} />
+            {/* <Tab.Screen name="Collectins" component={All} />
             <Tab.Screen name="About" component={All} />
-            {/* <Tab.Screen name="Upcoming" component={Upcoming} />
+            <Tab.Screen name="Upcoming" component={Upcoming} />
             <Tab.Screen name="SignUp" component={SignUp} /> */}
         </Tab.Navigator>
     )
@@ -148,20 +148,14 @@ export default function Organizer() {
                     title='Organizer'
                     titleStyle={[style.apptitle, { color: theme.txt }]}
                     elevation={0}
-                    leading={<TouchableOpacity onPress={() => navigation.navigate('EventDetail')}>
+                    leading={<TouchableOpacity onPress={() => navigation.goBack()}>
                         <Icon name="arrow-back"
                             // style={{backgroundColor:Colors.secondary,}}  
                             color={theme.txt} size={30}
                         />
                     </TouchableOpacity>
                     }
-                    trailing={<TouchableOpacity >
-                        <Icon name="ellipsis-horizontal-circle"
-                            // style={{backgroundColor:Colors.secondary,}}  
-                            color={theme.txt} size={30}
-                        />
-                    </TouchableOpacity>
-                    } />
+                    trailing={null} />
 
                 <Avatar image={require('../../assets/image/p6.png')}
                     style={{ backgroundColor: 'transparent', alignSelf: 'center', marginTop: 20 }} size={90}></Avatar>
@@ -178,11 +172,11 @@ export default function Organizer() {
                         <Text style={[style.title, { color: theme.txt }]}>967K</Text>
                         <Text style={[style.r16, { color: theme.disable2 }]}>Followers</Text>
                     </View>
-                    <View style={[style.verticaldivider, { backgroundColor: theme.border }]}></View>
+                    {/* <View style={[style.verticaldivider, { backgroundColor: theme.border }]}></View>
                     <View style={{ alignItems: 'center' }}>
                         <Text style={[style.title, { color: theme.txt }]}>20</Text>
                         <Text style={[style.r16, { color: theme.disable2 }]}>Following</Text>
-                    </View>
+                    </View> */}
                 </View>
                 <View style={[style.divider, { backgroundColor: theme.border, marginTop: 10 }]}></View>
 
@@ -192,12 +186,12 @@ export default function Organizer() {
                         <Icon name='person-add' color={Colors.secondary} size={20}></Icon>
                         <Text style={[style.btntxt, { marginLeft: 5 }]}>Follow</Text>
                     </TouchableOpacity>
-                    <View style={{ margin: 5 }}></View>
+                    {/* <View style={{ margin: 5 }}></View>
                     <TouchableOpacity onPress={() => navigation.navigate('')}
                         style={[style.btn, { flex: 1, flexDirection: 'row', justifyContent: 'center', backgroundColor: theme.borderbg, borderColor: Colors.primary, borderWidth: 1 }]}>
                         <Icon name='chatbubble-ellipses-sharp' color={Colors.primary} size={20}></Icon>
                         <Text style={[style.btntxt, { color: Colors.primary, marginLeft: 5 }]}>Message</Text>
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
                 </View>
                 <View style={{ marginTop: -10 }}></View>
                 <Tabs></Tabs>

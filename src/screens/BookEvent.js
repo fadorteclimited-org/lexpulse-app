@@ -14,7 +14,8 @@ const Tab = createMaterialTopTabNavigator();
 const width =Dimensions.get('screen').width
 const height = Dimensions.get('screen').height
 
-const Tabs = () =>{
+const Tabs = (props) => {
+
     return (
         <Tab.Navigator
         screenOptions={{
@@ -28,40 +29,43 @@ const Tabs = () =>{
           swipeEnabled:false,           
 
           }}>
-            <Tab.Screen name="Economy" component={Event} 
+            <Tab.Screen name="Tickets" component={Event}
                 options={{
                     tabBarShowLabel:true,
                     tabBarLabel: ({focused, color,}) => (
-                    <Text style={{color: focused ? Colors.primary : Colors.disable,fontFamily:'Urbanist-Regular',textAlign:'center',fontSize:16}}>Economy</Text>
+                    <Text style={{color: focused ? Colors.primary : Colors.disable,fontFamily:'Urbanist-Regular',textAlign:'center',fontSize:16}}>Tickets</Text>
                     ),
                     headerShown:false,
                 }}/>
-            <Tab.Screen name="VIP" component={Event}
+            {/* <Tab.Screen name="VIP" component={Event}
                 options={{
                     tabBarShowLabel:true,
                     tabBarLabel: ({focused, color,}) => (
                     <Text style={{color: focused ? Colors.primary : Colors.disable,fontFamily:'Urbanist-Regular',textAlign:'center',fontSize:16}}>VIP</Text>
                     ),
                     headerShown:false,
-                }} />
+                }} /> */}
         </Tab.Navigator>
       )
 }
 
-const Event = () =>{
+const Event = (props) => {
     
     const theme = useContext(themeContext);
-    const navigation=useNavigation();
+    const navigation = useNavigation();
+    
+    const [ticketNumber, onTicketNumber] = useState(1);
+    
 
     return(
         <SafeAreaView style={[style.area,{backgroundColor:theme.bg,}]}>
-            <Text style={[style.subtitle,{color:theme.txt,marginTop:20}]}>Choose number of seats</Text>
+            <Text style={[style.subtitle,{color:theme.txt,marginTop:20}]}>Choose number of tickets</Text>
 
             <View style={{flexDirection:'row',alignItems:'center',justifyContent:'center',marginTop:20}}>
                 <View style={{width:width/9,height:height/22,borderColor:theme.border,backgroundColor:theme.borderbg,borderWidth:1,borderRadius:10,alignItems:'center'}}>
                     <Text style={[style.title,{color:Colors.primary,marginTop:-4}]}>-</Text>
                 </View>
-                <Text style={[style.title,{color:theme.txt,marginHorizontal:30}]}>1</Text>
+                <Text style={[style.title,{color:theme.txt,marginHorizontal:30}]}>{ticketNumber}</Text>
                 <View style={{width:width/9,height:height/22,borderColor:theme.border,backgroundColor:theme.borderbg,borderWidth:1,borderRadius:10,alignItems:'center'}}>
                     <Text style={[style.title,{color:Colors.primary,marginTop:-4}]}>+</Text>
                 </View>
@@ -77,10 +81,14 @@ const Event = () =>{
     )
 }
 
-export default function BookEvent() {
+export default function BookEvent({ route }) {
+    const { itemObj } = route.params;
   
     const theme = useContext(themeContext);
-    const navigation=useNavigation();
+    const navigation = useNavigation();
+    
+    const [item, setItem] = useState(itemObj);
+    const [ticketNumber, setTicketNumber] = useState(1);
 
     return (
     <SafeAreaView style={[style.area,{backgroundColor:theme.bg,}]}>
@@ -90,7 +98,7 @@ export default function BookEvent() {
             title='Book Event'
             titleStyle={[style.apptitle,{color:theme.txt}]}
             elevation={0}
-            leading={ <TouchableOpacity onPress={()=>navigation.navigate('EventDetail')}>
+            leading={ <TouchableOpacity onPress={() => navigation.goBack()}>
             <Icon name="arrow-back"  
             // style={{backgroundColor:Colors.secondary,}}  
             color={theme.txt} size={30}
@@ -98,7 +106,26 @@ export default function BookEvent() {
             </TouchableOpacity>
         }/>
 
-        <Tabs></Tabs>
+        {/* <Tabs itemObj={itemObj}></Tabs> */}
+
+        <Text style={[style.subtitle,{color:theme.txt,marginTop:20}]}>Choose number of tickets</Text>
+
+        <View style={{flexDirection:'row',alignItems:'center',justifyContent:'center',marginTop:20}}>
+            <TouchableOpacity style={{width:width/9,height:height/22,borderColor:theme.border,backgroundColor:theme.borderbg,borderWidth:1,borderRadius:10,alignItems:'center'}} activeOpacity={0.9}  onPress={() => { ticketNumber > 1 ? (setTicketNumber(ticketNumber - 1)) : (null) }}>
+                <Text style={[style.title,{color:Colors.primary,marginTop:-4}]}>-</Text>
+            </TouchableOpacity>
+            <Text style={[style.title,{color:theme.txt,marginHorizontal:30}]}>{ticketNumber}</Text>
+            <TouchableOpacity style={{width:width/9,height:height/22,borderColor:theme.border,backgroundColor:theme.borderbg,borderWidth:1,borderRadius:10,alignItems:'center'}} activeOpacity={0.9} onPress={() => { ticketNumber < item.ticketsAvailable ? (setTicketNumber(ticketNumber + 1)) : (null) }}>
+                <Text style={[style.title,{color:Colors.primary,marginTop:-4}]}>+</Text>
+            </TouchableOpacity>
+        </View>
+
+        <View style={{flex:1,justifyContent:'flex-end',marginBottom:20}}>
+            <TouchableOpacity onPress={() => navigation.navigate('ReviewSummary', { itemObj: item, ticketNumber: ticketNumber })} 
+            style={style.btn}>
+            <Text style={style.btntxt}>Continue - {item.price === 0 ? (`Free Event`) : (`${item.currency} ${Number(item.price) * ticketNumber}`)}</Text>
+            </TouchableOpacity>
+        </View>
 
     </View>
     </SafeAreaView>

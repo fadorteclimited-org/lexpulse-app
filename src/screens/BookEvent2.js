@@ -55,7 +55,7 @@ export default function BookEvent2() {
                         elevation={0}
                         title='Book Event'
                         titleStyle={[style.apptitle, { color: theme.txt }]}
-                        leading={<TouchableOpacity onPress={() => navigation.navigate('BookEvent')}>
+                        leading={<TouchableOpacity onPress={() => navigation.goBack()}>
                             <Icon name="arrow-back"
                                 // style={{backgroundColor:Colors.secondary,}}  
                                 color={theme.txt} size={30}

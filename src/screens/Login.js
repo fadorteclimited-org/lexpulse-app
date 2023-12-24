@@ -1,4 +1,5 @@
-import { View, Text ,SafeAreaView, TextInput, StatusBar,TouchableOpacity,Image,ScrollView,Dimensions,KeyboardAvoidingView} from 'react-native'
+import { ActivityIndicator, View, Text ,SafeAreaView, TextInput, StatusBar,TouchableOpacity,Image,ScrollView,Dimensions,KeyboardAvoidingView} from 'react-native'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import React,{useState,useContext} from 'react'
 import theme from '../theme/theme';
 import themeContext from '../theme/themeContex';
@@ -8,6 +9,8 @@ import { useNavigation } from '@react-navigation/native';
 import { AppBar} from '@react-native-material/core';
 import  Icon  from 'react-native-vector-icons/Ionicons';
 import CheckBox from '@react-native-community/checkbox';
+import { ENDPOINTS } from '../api/constants';
+import axios from 'axios';
 
 const width =Dimensions.get('screen').width
 const height = Dimensions.get('screen').height
@@ -20,6 +23,58 @@ export default function Login() {
     const [isSelected, setIsSelected] = useState(false);
     const [isFocused, setIsFocused] = useState(false)
 
+    const [loading, onLoading] = React.useState(false);
+    const [error, onError] = React.useState('');
+    const [email, onChangeEmail] = React.useState('');
+    const [password, onChangePassword] = React.useState('');
+
+    const login = () => {
+      onLoading(true);
+
+      try {
+        var config = {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        };
+    
+        var data = {
+          "email": email,
+          "password": password
+        };
+        
+        var url = ENDPOINTS.login;
+    
+        axios.post(url, data, config)
+        .then(async (res) => {
+          console.log(res.data)
+          onLoading(false);
+          const jsonValue = JSON.stringify(res.data);
+
+          await AsyncStorage.setItem('userDetails', jsonValue);
+          navigation.navigate('BottomNavigator');
+        })
+        .catch(error => {
+          console.log(error);
+          
+          if (error.response) {
+            onLoading(false);
+            onError(error.response.data.msg);
+          } else if (error.request) {
+            console.log(error.request);
+            onLoading(false);
+            onError('Problem signing in. Please try later!');
+          } else {
+            onLoading(false);
+            onError('Problem signing in. Please try later!');
+          }
+        });
+        
+      } catch (error) {
+        onLoading(false);
+        console.log(error);
+      }
+    };
 
   return (
      <SafeAreaView style={[style.area,{backgroundColor:theme.bg,}]}>
@@ -32,7 +87,7 @@ export default function Login() {
             <AppBar 
             color={theme.bg}
             elevation={0}
-            leading={ <TouchableOpacity onPress={()=>navigation.navigate('Letsin')}>
+            leading={ <TouchableOpacity onPress={()=>navigation.navigate('Introduction')}>
             <Icon name="arrow-back"  
             color={theme.txt} size={30}
             />
@@ -52,9 +107,11 @@ export default function Login() {
         <View style={[style.inputContainer,{marginTop:20,borderColor: isFocused === 'Email' ? Colors.primary : theme.input,borderWidth:1,backgroundColor: isFocused==='Email' ?'#584CF410': theme.input}]}>
         <Icon name='mail' size={25} color={isFocused==='Email' ?'#584CF4': Colors.disable}></Icon>
                     <TextInput placeholder='Email'
+                    keyboardType='email-address'
                     selectionColor={Colors.primary}
                     onFocus={() => setIsFocused('Email')}
                     onBlur={() => setIsFocused(false)}
+                    onChangeText={onChangeEmail}
                     placeholderTextColor={Colors.disable}
                     style={[{paddingHorizontal:10,color:theme.txt,fontFamily:'Urbanist-Regular',flex:1}]}
                     />
@@ -66,6 +123,7 @@ export default function Login() {
             secureTextEntry={!isPasswordVisible}
             onFocus={() => setIsFocused('Password')}
             onBlur={() => setIsFocused(false)}
+            onChangeText={onChangePassword}
             selectionColor={Colors.primary}
             placeholderTextColor={Colors.disable}
             style={[{paddingHorizontal:10,color:theme.txt,fontFamily:'Urbanist-Regular',flex:1}]}
@@ -75,7 +133,7 @@ export default function Login() {
             </TouchableOpacity>
         </View>
 
-        <View style={{ flexDirection: 'row', marginVertical: 20, paddingLeft:10,alignItems:'center',justifyContent:'center' }}>
+        {/* <View style={{ flexDirection: 'row', marginVertical: 20, paddingLeft:10,alignItems:'center',justifyContent:'center' }}>
          
          <CheckBox
            value={isSelected}
@@ -87,18 +145,34 @@ export default function Login() {
             <Text style={[style.b18,{color:theme.txt,marginLeft:5}]}>Remember me</Text>
         </View>
             
-        </View>
+        </View> */}
 
-       <View style={{}}>
-            <TouchableOpacity onPress={()=>navigation.navigate('BottomNavigator')} 
-            style={style.btn}>
-               <Text style={style.btntxt}>Sign in</Text>
-            </TouchableOpacity>
+       <View style={{ marginVertical: 20 }}>
+          {
+            error && error.length > 0 ? (
+              <Text style={{ color: 'red', marginTop: 20, marginBottom: 20, textAlign: 'center' }}>{error}</Text>
+            ) : (
+              null
+            )
+          }
+          {
+            loading ? (
+              <TouchableOpacity 
+              style={style.btn}>
+                <ActivityIndicator size="small" color="#ffffff" />
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity onPress={() => login()} 
+              style={style.btn}>
+                <Text style={style.btntxt}>Sign in</Text>
+              </TouchableOpacity>
+            )
+          }
         </View>
 
         <View style={{marginTop:20,alignItems:'center'}}>
           <TouchableOpacity onPress={()=>navigation.navigate('ForgotPass')}>
-            <Text style={[style.subtxt,{color:Colors.primary,fontFamily:'Urbanist-SemiBold'}]}>Forgot the password?</Text>
+            <Text style={[style.subtxt,{color:Colors.primary,fontFamily:'Urbanist-SemiBold'}]}>Forgot password?</Text>
           </TouchableOpacity>
         </View>
 
@@ -110,11 +184,11 @@ export default function Login() {
 
         
         <View style={{flexDirection:'row',alignItems:'center', justifyContent:'space-evenly'}}>
-          <TouchableOpacity style={[style.btnoutline,{backgroundColor:theme.borderbg,borderColor:theme.border}]}>
+          {/* <TouchableOpacity style={[style.btnoutline,{backgroundColor:theme.borderbg,borderColor:theme.border}]}>
             <Image source={require('../../assets/image/Fb.png')}
             resizeMode='stretch'
             style={{height:height/25,width:width/11}}></Image>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
           <TouchableOpacity style={[style.btnoutline,{backgroundColor:theme.borderbg,borderColor:theme.border}]}>
             <Image source={require('../../assets/image/Google.png')}
             resizeMode='stretch'

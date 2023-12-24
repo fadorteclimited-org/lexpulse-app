@@ -39,7 +39,7 @@ export default function Going() {
                     elevation={0}
                     title='20,000+ Going'
                     titleStyle={[style.apptitle, { color: theme.txt }]}
-                    leading={<TouchableOpacity onPress={() => navigation.navigate('EventDetail')}>
+                    leading={<TouchableOpacity onPress={() => navigation.goBack()}>
                         <Icon name="arrow-back"
                             // style={{backgroundColor:Colors.secondary,}}  
                             color={theme.txt} size={30}

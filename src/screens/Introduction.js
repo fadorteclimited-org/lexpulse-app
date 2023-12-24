@@ -82,7 +82,7 @@ export default function Introduction() {
                                 alignItems: 'center',
                                 backgroundColor: Colors.primary
                             }]}
-                            onPress={() => navigation.navigate('Letsin')}
+                            onPress={() => navigation.navigate('Login')}
                         >
                             <Text style={[style.btntxt]}>Get Started</Text>
                         </TouchableOpacity>

@@ -19,9 +19,9 @@ export default function Gallery() {
                 <AppBar
                     color={theme.bg}
                     elevation={0}
-                    title='Gallery (Pre-Event)'
+                    title='Gallery'
                     titleStyle={[style.apptitle, { color: theme.txt }]}
-                    leading={<TouchableOpacity onPress={() => navigation.navigate('EventDetail')}>
+                    leading={<TouchableOpacity onPress={() => navigation.goBack()}>
                         <Icon name="arrow-back"
                             // style={{backgroundColor:Colors.secondary,}}  
                             color={theme.txt} size={30}

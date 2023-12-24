@@ -61,6 +61,8 @@ import Linkaccount from '../screens/Linkaccount';
 import Security from '../screens/Security';
 import Helpcenter from '../screens/Helpcenter';
 import Language from '../screens/Language';
+import SuccessfulBooking from '../screens/SuccessfulBooking';
+import FailedBooking from '../screens/FailedBooking';
 
 
 const Stack = createNativeStackNavigator();
@@ -165,6 +167,14 @@ export default function StackNavigator() {
           <Stack.Screen
             name="OtpBooking"
             component={OtpBooking}
+            options={{ headerShown: false }} />
+          <Stack.Screen
+            name="SuccessfulBooking"
+            component={SuccessfulBooking}
+            options={{ headerShown: false }} />
+          <Stack.Screen
+            name="FailedBooking"
+            component={FailedBooking}
             options={{ headerShown: false }} />
 
           <Stack.Screen

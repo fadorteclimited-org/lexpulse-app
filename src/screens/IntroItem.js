@@ -25,7 +25,7 @@ export default function IntroItem({ item }) {
             <View style={{ flex: 2.3 ,marginTop:20,backgroundColor:theme.bg}}>
                 <ImageBackground source={item.bg} resizeMode='stretch'
                     style={{ width: width/1.3, height: height / 2,alignSelf:'center'}}>
-                    <Image source={item.img}  resizeMode='stretch' style={{ width: width/1.2, height: height / 2,alignSelf:'center',marginTop:40}} />
+                    <Image source={item.img}  resizeMode='stretch' style={{ width: width/1.2, height: height / 3,alignSelf:'center',marginTop:40}} />
                 </ImageBackground>
             </View>
             <View style={{

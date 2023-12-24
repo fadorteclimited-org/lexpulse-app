@@ -23,7 +23,7 @@ export default function EventLocation() {
                         titleStyle={[style.apptitle, { color: theme.txt }]}
                         style={{ marginHorizontal: 20 }}
                         elevation={0}
-                        leading={<TouchableOpacity onPress={() => navigation.navigate('EventDetail')}>
+                        leading={<TouchableOpacity onPress={() => navigation.goBack()}>
                             <Icon name="arrow-back"
                                 // style={{backgroundColor:Colors.secondary,}}  
                                 color={theme.txt} size={30}

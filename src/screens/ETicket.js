@@ -1,5 +1,6 @@
-import { View, Text, TextInput, ScrollView, TouchableOpacity, ImageBackground, Image, Dimensions, KeyboardAvoidingView, Modal } from 'react-native'
-import React, { useState, useContext } from 'react'
+import { ActivityIndicator, View, Text, TextInput, ScrollView, TouchableOpacity, ImageBackground, Image, Dimensions, KeyboardAvoidingView, Modal } from 'react-native'
+import React, { useState, useContext, useEffect } from 'react'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Colors } from '../theme/color'
 import style from '../theme/style'
 import themeContext from '../theme/themeContex'
@@ -11,15 +12,81 @@ import { Avatar } from 'react-native-paper'
 import OtpInputs from 'react-native-otp-inputs'
 import Clipboard from '@react-native-clipboard/clipboard'
 import { SafeAreaView } from 'react-native'
+import { ENDPOINTS } from '../api/constants';
+import axios from 'axios';
+import moment from 'moment';
 import RBSheet from 'react-native-raw-bottom-sheet';
 
 
 const width = Dimensions.get('screen').width
 const height = Dimensions.get('screen').height
 
-export default function ETicket() {
+export default function ETicket({ route }) {
+    const { ticketId } = route.params;
+
     const theme = useContext(themeContext);
     const navigation = useNavigation();
+    
+    const [loading, onLoading] = useState(true);
+    const [savedTicket, setSavedTicket] = useState(ticketId);
+    const [ticketDetails, setTicketDetails] = useState({});
+
+    const fetchData = async () => {
+        const jsonValue = await AsyncStorage.getItem('userDetails');
+        const parsedValue = JSON.parse(jsonValue);
+        
+        try {
+            var config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${parsedValue.token}`
+                }
+            };
+            
+            var url = `${ENDPOINTS.tickets}/${savedTicket}`;
+        
+            axios.get(url, config)
+            .then((res) => {
+                onLoading(false);
+                console.log(res.data)
+                setTicketDetails(res.data.data);
+            })
+            .catch(error => {
+                console.log(error);
+                
+                if (error.response) {
+                    onLoading(false);
+                    onError(error.response.data.msg);
+                } else if (error.request) {
+                    console.log(error.request);
+                    onLoading(false);
+                    onError('Problem signing in. Please try later!');
+                } else {
+                    onLoading(false);
+                    onError('Problem signing in. Please try later!');
+                }
+            });
+            
+        } catch (error) {
+            onLoading(false);
+            console.log(error);
+        }
+    };
+
+    useEffect(() => {
+        const fetchDataAndHandleErrors = async () => {
+            try {
+                await fetchData();
+            } catch (error) {
+                console.log('Error in fetchData:', error);
+                // Handle errors here if needed
+            }
+        };
+    
+        fetchDataAndHandleErrors();
+    }, []);
+
+
     return (
         <SafeAreaView style={[style.area, { backgroundColor: theme.bg }]}>
             <View style={[style.main, { backgroundColor: theme.bg ,marginTop:20}]}>
@@ -28,32 +95,39 @@ export default function ETicket() {
                     elevation={0}
                     title='E-Ticket'
                     titleStyle={[style.apptitle, { color: theme.txt }]}
-                    leading={<TouchableOpacity onPress={() => navigation.navigate('TicketTab')}>
+                    leading={<TouchableOpacity onPress={() => navigation.goBack()}>
                         <Icon name="arrow-back"
                             color={theme.txt} size={30}
                         />
                     </TouchableOpacity>
                     }
-                    trailing={<Icon name='ellipsis-horizontal-circle' size={25} color={theme.txt} />}
+                    // trailing={<Icon name='ellipsis-horizontal-circle' size={25} color={theme.txt} />}
                 />
                 
                 <ScrollView showsVerticalScrollIndicator={false}>
+                    {
+                        loading ? (
+                            <View style={{ width: '100%', height: '100%', paddingTop: '30%' }}>
+                                <ActivityIndicator size="large" color="#584CF4" />
+                            </View>
+                        ) : (
+                            <View style={{ paddingVertical: 10, paddingHorizontal: 5 }}>
+                                <View style={[style.shadow, { backgroundColor: theme.borderbg, borderRadius: 20, padding: 15 }]}>
+                                    <Image source={theme.eticket} resizeMode='stretch' style={{ height: height / 2.5, width: '100%', marginTop: 15, marginBottom: 15 }} />
+                                    <Text style={[style.b14, { color: theme.disable2 }]}>Event</Text>
+                                    <Text style={[style.subtitle, { color: theme.txt, marginTop: 10 }]}>{ticketDetails?.eventId?.eventName}</Text>
+                                    <Text style={[style.b14, { color: theme.disable2, marginTop: 10 }]}>Date</Text>
+                                    <Text style={[style.subtitle, { color: theme.txt, marginTop: 10 }]}>{moment.utc(ticketDetails?.eventId?.eventDate).local().format('dddd, MMMM DD, YYYY')}</Text>
+                                    <Text style={[style.b14, { color: theme.disable2, marginTop: 10 }]}>Event Location</Text>
+                                    <Text style={[style.subtitle, { color: theme.txt, marginTop: 10 }]}>{ticketDetails?.eventId?.location}</Text>
+                                    <Text style={[style.b14, { color: theme.disable2, marginTop: 10 }]}>Event Organizer</Text>
+                                    <Text style={[style.subtitle, { color: theme.txt, marginTop: 10 }]}>{`${ticketDetails?.eventId?.eventHostId?.firstName} ${ticketDetails?.eventId?.eventHostId?.lastName}`}</Text>
+                                </View>
+                            </View>
+                        )
+                    }
 
-                    <View style={{ paddingVertical: 10, paddingHorizontal: 5 }}>
-                        <View style={[style.shadow, { backgroundColor: theme.borderbg, borderRadius: 20, padding: 15 }]}>
-                            <Image source={theme.eticket} resizeMode='stretch' style={{ height: height / 2.5, width: '100%', marginTop: 15, marginBottom: 15 }} />
-                            <Text style={[style.b14, { color: theme.disable2 }]}>Event</Text>
-                            <Text style={[style.subtitle, { color: theme.txt, marginTop: 10 }]}>National Music Festival</Text>
-                            <Text style={[style.b14, { color: theme.disable2, marginTop: 10 }]}>Date and Hour</Text>
-                            <Text style={[style.subtitle, { color: theme.txt, marginTop: 10 }]}>Monday, Dec 24 • 18.00 - 23.00 PM</Text>
-                            <Text style={[style.b14, { color: theme.disable2, marginTop: 10 }]}>Event Location</Text>
-                            <Text style={[style.subtitle, { color: theme.txt, marginTop: 10 }]}>Grand Park, New York City, US</Text>
-                            <Text style={[style.b14, { color: theme.disable2, marginTop: 10 }]}>Event Organizer</Text>
-                            <Text style={[style.subtitle, { color: theme.txt, marginTop: 10 }]}>World of Music</Text>
-                        </View>
-                    </View>
-
-                    <View style={{ paddingVertical: 15, paddingHorizontal: 5 }}>
+                    {/* <View style={{ paddingVertical: 15, paddingHorizontal: 5 }}>
                         <View style={[style.shadow, { backgroundColor: theme.borderbg, borderRadius: 15, padding: 15 }]}>
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                                 <Text style={[style.b14, { color: theme.disable2 }]}>Full Name</Text>
@@ -125,14 +199,14 @@ export default function ETicket() {
                                 </View>
                             </View>
                         </View>
-                    </View>
+                    </View> */}
 
                 </ScrollView>
             </View>
             <View style={{ backgroundColor: theme.bg, paddingVertical: 20, paddingHorizontal: 20, borderTopRightRadius: 20, borderTopLeftRadius: 20, borderColor: theme.border, borderWidth: 1 }}>
-                <TouchableOpacity onPress={() => navigation.navigate('TicketTab')}
+                <TouchableOpacity onPress={() => navigation.navigate('BottomNavigator')}
                 style={[style.btn]}>
-                    <Text style={[style.btntxt]}>Download Ticket</Text>
+                    <Text style={[style.btntxt]}>Home</Text>
                 </TouchableOpacity>
             </View>
         </SafeAreaView>

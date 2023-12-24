@@ -1,5 +1,6 @@
-import { View, Text ,SafeAreaView, ImageBackground,TextInput, StatusBar,TouchableOpacity,Image,ScrollView,Dimensions} from 'react-native'
-import React,{useState,useContext} from 'react'
+import { ActivityIndicator, View, Text ,SafeAreaView, ImageBackground,TextInput, StatusBar,TouchableOpacity,Image,ScrollView,Dimensions} from 'react-native'
+import React,{useState, useContext, useEffect} from 'react'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import theme from '../theme/theme';
 import themeContext from '../theme/themeContex';
 import style from '../theme/style';
@@ -8,6 +9,9 @@ import { useNavigation } from '@react-navigation/native';
 import { AppBar,} from '@react-native-material/core';
 import  Icon  from 'react-native-vector-icons/Ionicons';
 import {Avatar} from 'react-native-paper';
+import { ENDPOINTS } from '../api/constants';
+import axios from 'axios';
+import moment from 'moment';
 import { color } from 'react-native-elements/dist/helpers';
 import TopNavigator from '../navigator/TopNavigator';
 // import Demo from './Demo';
@@ -17,9 +21,83 @@ const height = Dimensions.get('screen').height
 export default function Home() {
 
     const theme = useContext(themeContext);
-    const navigation=useNavigation();
-    const [select, setselect] = useState(false);
-    const [isSelect, setisSelect] = useState(false);
+    const navigation = useNavigation();
+
+    const [userDets, setUserDets] = useState({});
+    
+    const [loading, onLoading] = useState(true);
+    const [error, onError] = useState('');
+    const [list, setList] = useState(true);
+
+    const fetchData = async () => {
+        const jsonValue = await AsyncStorage.getItem('userDetails');
+        const parsedValue = JSON.parse(jsonValue);
+        
+        try {
+            var config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${parsedValue.token}`
+                }
+            };
+            
+            var url = `${ENDPOINTS.events}`;
+        
+            axios.get(url, config)
+            .then((res) => {
+                onLoading(false);
+                setList(res.data.data);
+            })
+            .catch(error => {
+                console.log(error);
+                
+                if (error.response) {
+                    onLoading(false);
+                    onError(error.response.data.msg);
+                } else if (error.request) {
+                    console.log(error.request);
+                    onLoading(false);
+                    onError('Problem signing in. Please try later!');
+                } else {
+                    onLoading(false);
+                    onError('Problem signing in. Please try later!');
+                }
+            });
+            
+        } catch (error) {
+            onLoading(false);
+            console.log(error);
+        }
+    };
+
+    useEffect(() => {
+        const fetchDataAndHandleErrors = async () => {
+            try {
+                await fetchData();
+            } catch (error) {
+                console.log('Error in fetchData:', error);
+                // Handle errors here if needed
+            }
+        };
+    
+        fetchDataAndHandleErrors();
+    }, []);
+
+    useEffect(() => {
+        const fetchUserDetails = async () => {
+            try {
+                const jsonValue = await AsyncStorage.getItem('userDetails');
+                const parsedValue = JSON.parse(jsonValue);
+
+                setUserDets(parsedValue);
+            } catch (error) {
+                console.log('Error in fetchData:', error);
+                // Handle errors here if needed
+            }
+        };
+    
+        fetchUserDetails();
+    }, []);
 
     const [T1, setT1] = useState(false)
     const [T2, setT2] = useState(false)
@@ -35,8 +113,8 @@ export default function Home() {
         <View style={{flexDirection:'row',alignItems:'center',marginTop:10}}>
             <Avatar.Image source={require('../../assets/image/user.png')} size={60}></Avatar.Image>
             <View style={{flex:1,marginLeft:10}}>
-                <Text style={[style.r16,{color:theme.disable}]}>Good Morning 👋</Text>
-                <Text style={[style.subtitle,{color:theme.txt}]}>Andrew Ainsley</Text>
+                <Text style={[style.r16,{color:theme.disable}]}>Welcome 👋</Text>
+                <Text style={[style.subtitle,{color:theme.txt}]}>{`${userDets?.user?.firstName} ${userDets?.user?.lastName}`}</Text>
             </View>
             <TouchableOpacity onPress={() => navigation.navigate('Notification2')}>
             <Avatar.Icon icon='bell-outline' size={50} style={{backgroundColor:theme.borderbg,borderWidth:1,borderColor:theme.border}}></Avatar.Icon>
@@ -55,7 +133,8 @@ export default function Home() {
 
         <ScrollView showsVerticalScrollIndicator={false} style={{marginTop:10}} nestedScrollEnabled={true}>
 
-        <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center',marginTop:10}}>
+        {/* Featured Events UI */}
+        {/* <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center',marginTop:10}}>
             <Text style={[style.subtitle,{color:theme.txt}]}>Featured</Text>
             <Text style={[style.b16,{color:Colors.primary}]}>See All</Text>
         </View>
@@ -79,9 +158,8 @@ export default function Home() {
             </View>
             </View>
             </TouchableOpacity>
-            {/* <View style={{margin:10}}></View> */}
 
-<TouchableOpacity onPress={() => navigation.navigate('EventDetail')}>
+            <TouchableOpacity onPress={() => navigation.navigate('EventDetail')}>
             <View style={[{padding:10,}]}>
             <View style={[style.shadow,{padding:15,backgroundColor:theme.borderbg,borderRadius:15}]}>
                 <Image source={require('../../assets/image/i2.png')}
@@ -98,185 +176,82 @@ export default function Home() {
             </View>
             </TouchableOpacity>
         </ScrollView>
-        </View>
+        </View> */}
+        {/* Featured Events UI */}
 
-        <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center',marginVertical:10,}}>
-            <Text style={[style.subtitle,{color:theme.txt}]}>Popular Event 🔥</Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Resultlist')}>
-            <Text style={[style.b16,{color:Colors.primary}]}>See All</Text>
-            </TouchableOpacity>
-        </View>
-
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} nestedScrollEnabled={true} style={{ marginVertical: 20 }}>
-            <View style={{ flexDirection: 'row' }}>
-                <TouchableOpacity onPress={()=>setT1(!T1)}
-                style={{ paddingVertical: 5, paddingHorizontal: 15, borderColor: Colors.primary, borderWidth: 1, borderRadius: 15, backgroundColor:T1?Colors.primary:theme.bg}}>
-                    <Text style={[style.b16, { color: T1?Colors.secondary:Colors.primary }]}>✅ All</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={()=>setT2(!T2)} style={{ paddingVertical: 5, paddingHorizontal: 15, borderColor: Colors.primary, borderWidth: 1, borderRadius: 15, marginHorizontal: 10 , backgroundColor:T2?Colors.primary:theme.bg}}>
-                    <Text style={[style.b16, { color: T2?Colors.secondary:Colors.primary }]}>🎵 Music</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={()=>setT3(!T3)} style={{ paddingVertical: 5, paddingHorizontal: 15, borderColor: Colors.primary, borderWidth: 1, borderRadius: 15,  backgroundColor:T3?Colors.primary:theme.bg}}>
-                    <Text style={[style.b16, { color: T3?Colors.secondary:Colors.primary  }]}>💼 Workshops</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={()=>setT4(!T4)} style={{ paddingVertical: 5, paddingHorizontal: 15, borderColor: Colors.primary, borderWidth: 1, borderRadius: 15, marginHorizontal: 10, backgroundColor:T4?Colors.primary:theme.bg }}>
-                    <Text style={[style.b16, {color: T5?Colors.secondary:Colors.primary  }]}>🎨 Art</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={()=>setT5(!T5)} style={{ paddingVertical: 5, paddingHorizontal: 15, borderColor: Colors.primary, borderWidth: 1, borderRadius: 15,  backgroundColor:T5?Colors.primary:theme.bg}}>
-                    <Text style={[style.b16, { color: T5?Colors.secondary:Colors.primary }]}>🍕 Food & Drink</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={()=>setT6(!T6)} style={{ paddingVertical: 5, paddingHorizontal: 15, borderColor: Colors.primary, borderWidth: 1, borderRadius: 15, marginLeft: 10, backgroundColor:T6?Colors.primary:theme.bg }}>
-                    <Text style={[style.b16, {color: T6?Colors.secondary:Colors.primary  }]}>🧥 Fashion</Text>
-                </TouchableOpacity>
-            </View>
-        </ScrollView>
-
-        <View style={{flexDirection:'row'}}>
-        <View style={[{padding:5,flex:1}]}>
-            <View style={[style.shadow,{padding:10,backgroundColor:theme.borderbg,borderRadius:15}]}>
-                <ImageBackground source={require('../../assets/image/p1.png')}
-                resizeMode='stretch'
-                style={{height:height/6}}></ImageBackground>
-                <Text style={[style.b18,{color:theme.txt,marginTop:5}]}>Art Workshops</Text>
-                <Text style={[style.r12,{color:Colors.primary,marginVertical:5}]}>Fri, Dec 20 • 13.00 - 15.00...</Text>
-                <View style={{flexDirection:'row',alignItems:'center',}}>
-                    <Icon name='location' size={20} color={Colors.primary}></Icon>
-                    <Text style={[style.r12,{color:theme.disable2,flex:1,marginHorizontal:10,}]}>New Avenue, Wa...</Text>
-                    <TouchableOpacity>
-                    <Icon name='heart-outline' size={20} color={Colors.primary}></Icon>
-                    </TouchableOpacity>
+        {
+            loading ? (
+                <View style={{ width: '100%', height: '100%', paddingTop: '30%' }}>
+                    <ActivityIndicator size="large" color="#584CF4" />
                 </View>
-            </View>
-            </View>
+            ) : (
+                <>
+                    <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center',marginVertical:10,}}>
+                        <Text style={[style.subtitle,{color:theme.txt}]}>Popular Events 🔥</Text>
+                        {/* <TouchableOpacity onPress={() => navigation.navigate('Resultlist')}>
+                        <Text style={[style.b16,{color:Colors.primary}]}>See All</Text>
+                        </TouchableOpacity> */}
+                    </View>
 
-            <View style={[{padding:5,flex:1}]}>
-            <View style={[style.shadow,{padding:10,backgroundColor:theme.borderbg,borderRadius:15}]}>
-                <ImageBackground source={require('../../assets/image/p2.png')}
-                resizeMode='stretch'
-                style={{height:height/6}}></ImageBackground>
-                <Text style={[style.b18,{color:theme.txt,marginTop:5}]}>Music Concert</Text>
-                <Text style={[style.r12,{color:Colors.primary,marginVertical:5}]}>Tue, Dec 19 • 19.00 - 22.00...</Text>
-                <View style={{flexDirection:'row',alignItems:'center',}}>
-                    <Icon name='location' size={20} color={Colors.primary}></Icon>
-                    <Text style={[style.r12,{color:theme.disable2,flex:1,marginHorizontal:10,}]}>Central Park, Ne...</Text>
-                    <TouchableOpacity>
-                    <Icon name='heart-outline' size={20} color={Colors.primary}></Icon>
-                    </TouchableOpacity>                
-                </View>
-            </View>
-            </View>
-        </View>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} nestedScrollEnabled={true} style={{ marginVertical: 20 }}>
+                        <View style={{ flexDirection: 'row' }}>
+                            <TouchableOpacity onPress={()=>setT1(!T1)}
+                            style={{ paddingVertical: 5, paddingHorizontal: 15, borderColor: Colors.primary, borderWidth: 1, borderRadius: 15, backgroundColor:T1?Colors.primary:theme.bg}}>
+                                <Text style={[style.b16, { color: T1?Colors.secondary:Colors.primary }]}>✅ All</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={()=>setT2(!T2)} style={{ paddingVertical: 5, paddingHorizontal: 15, borderColor: Colors.primary, borderWidth: 1, borderRadius: 15, marginHorizontal: 10 , backgroundColor:T2?Colors.primary:theme.bg}}>
+                                <Text style={[style.b16, { color: T2?Colors.secondary:Colors.primary }]}>🎵 Music</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={()=>setT3(!T3)} style={{ paddingVertical: 5, paddingHorizontal: 15, borderColor: Colors.primary, borderWidth: 1, borderRadius: 15,  backgroundColor:T3?Colors.primary:theme.bg}}>
+                                <Text style={[style.b16, { color: T3?Colors.secondary:Colors.primary  }]}>💼 Workshops</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={()=>setT4(!T4)} style={{ paddingVertical: 5, paddingHorizontal: 15, borderColor: Colors.primary, borderWidth: 1, borderRadius: 15, marginHorizontal: 10, backgroundColor:T4?Colors.primary:theme.bg }}>
+                                <Text style={[style.b16, {color: T5?Colors.secondary:Colors.primary  }]}>🎨 Art</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={()=>setT5(!T5)} style={{ paddingVertical: 5, paddingHorizontal: 15, borderColor: Colors.primary, borderWidth: 1, borderRadius: 15,  backgroundColor:T5?Colors.primary:theme.bg}}>
+                                <Text style={[style.b16, { color: T5?Colors.secondary:Colors.primary }]}>🍕 Food & Drink</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={()=>setT6(!T6)} style={{ paddingVertical: 5, paddingHorizontal: 15, borderColor: Colors.primary, borderWidth: 1, borderRadius: 15, marginLeft: 10, backgroundColor:T6?Colors.primary:theme.bg }}>
+                                <Text style={[style.b16, {color: T6?Colors.secondary:Colors.primary  }]}>🧥 Fashion</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </ScrollView>
 
-        <View style={{flexDirection:'row'}}>
-        <View style={[{padding:5,flex:1}]}>
-            <View style={[style.shadow,{padding:10,backgroundColor:theme.borderbg,borderRadius:15}]}>
-                <ImageBackground source={require('../../assets/image/p3.png')}
-                resizeMode='stretch'
-                style={{height:height/6}}></ImageBackground>
-                <Text style={[style.b18,{color:theme.txt,marginTop:5}]}>Tech Seminar</Text>
-                <Text style={[style.r12,{color:Colors.primary,marginVertical:5}]}>Sat, Dec 22 • 10.00 - 12.00...</Text>
-                <View style={{flexDirection:'row',alignItems:'center',}}>
-                    <Icon name='location' size={20} color={Colors.primary}></Icon>
-                    <Text style={[style.r12,{color:theme.disable2,flex:1,marginHorizontal:10,}]}>Auditorium Build...</Text>
-                    <TouchableOpacity>
-                    <Icon name='heart-outline' size={20} color={Colors.primary}></Icon>
-                    </TouchableOpacity>
-                </View>
-            </View>
-            </View>
+                    {
+                        list.length > 0 ? (
+                            <View style={{flexDirection:'row', flexWrap: 'wrap', width: '100%'}}>
+                                {
+                                    list.map((item, index) => (
+                                        <TouchableOpacity style={[{padding:5, width: "50%"}]} activeOpacity={0.9} key={index} onPress={() => navigation.navigate('EventDetail', { itemObj: item })}>
+                                            <View style={[style.shadow,{padding:10,backgroundColor:theme.borderbg,borderRadius:15, flex: 1}]}>
+                                                <ImageBackground source={{ uri: item.image[0] }}
+                                                resizeMode='stretch'
+                                                style={{height: height/6}}></ImageBackground>
+                                                <Text style={[style.b18,{color:theme.txt,marginTop:5}]}>{item.eventName}</Text>
+                                                <Text style={[style.r12,{color:Colors.primary,marginVertical:5}]}>{moment.utc(item.eventDate).local().format('MMM DD, YYYY')}</Text>
+                                                <View style={{flexDirection:'row',alignItems:'center',}}>
+                                                    <Icon name='location' size={20} color={Colors.primary}></Icon>
+                                                    <Text style={[style.r12,{color:theme.disable2,flex:1,marginHorizontal:10,}]}>{item.location ? (item.location.length > 10 ? `${item.location.substring(0, 10)}...` : item.location) : 'No Location'}</Text>
+                                                    <TouchableOpacity>
+                                                    <Icon name='heart-outline' size={20} color={Colors.primary}></Icon>
+                                                    </TouchableOpacity>
+                                                </View>
+                                            </View>
+                                        </TouchableOpacity>
+                                    ))
+                                }
+                            </View>
+                        ) : (
+                            <View style={{ height: '80%', width: '100%', alignItems: 'center' }}>
+                                <Image source={require('../../assets/image/noevents.png')} resizeMode='stretch' style={{width:width/1.5, height:height/4.2, marginTop: '30%' }}></Image>
+                            </View>
+                        )
+                    }
 
-            <View style={[{padding:5,flex:1}]}>
-            <View style={[style.shadow,{padding:10,backgroundColor:theme.borderbg,borderRadius:15}]}>
-                <ImageBackground source={require('../../assets/image/p4.png')}
-                resizeMode='stretch'
-                style={{height:height/6}}></ImageBackground>
-                <Text style={[style.b18,{color:theme.txt,marginTop:5}]}>Mural Painting</Text>
-                <Text style={[style.r12,{color:Colors.primary,marginVertical:5}]}>Sun, Dec 16 • 11.00 - 13.00...</Text>
-                <View style={{flexDirection:'row',alignItems:'center',}}>
-                    <Icon name='location' size={20} color={Colors.primary}></Icon>
-                    <Text style={[style.r12,{color:theme.disable2,flex:1,marginHorizontal:10,}]}>City Space, New...</Text>
-                    <TouchableOpacity>
-                    <Icon name='heart-outline' size={20} color={Colors.primary}></Icon>
-                    </TouchableOpacity>                
-                </View>
-            </View>
-            </View>
-        </View>
-
-        <View style={{flexDirection:'row'}}>
-        <View style={[{padding:5,flex:1}]}>
-            <View style={[style.shadow,{padding:10,backgroundColor:theme.borderbg,borderRadius:15}]}>
-                <ImageBackground source={require('../../assets/image/p5.png')}
-                resizeMode='stretch'
-                style={{height:height/6}}></ImageBackground>
-                <Text style={[style.b18,{color:theme.txt,marginTop:5}]}>Fitness & Gym...</Text>
-                <Text style={[style.r12,{color:Colors.primary,marginVertical:5}]}>Thu, Dec 21 • 09.00 - 12.00...</Text>
-                <View style={{flexDirection:'row',alignItems:'center',}}>
-                    <Icon name='location' size={20} color={Colors.primary}></Icon>
-                    <Text style={[style.r12,{color:theme.disable2,flex:1,marginHorizontal:10,}]}>Health Center, W...</Text>
-                    <TouchableOpacity>
-                    <Icon name='heart-outline' size={20} color={Colors.primary}></Icon>
-                    </TouchableOpacity>
-                </View>
-            </View>
-            </View>
-
-            <View style={[{padding:5,flex:1}]}>
-            <View style={[style.shadow,{padding:10,backgroundColor:theme.borderbg,borderRadius:15}]}>
-                <ImageBackground source={require('../../assets/image/p6.png')}
-                resizeMode='stretch'
-                style={{height:height/6}}></ImageBackground>
-                <Text style={[style.b18,{color:theme.txt,marginTop:5}]}>DJ Music & Co...</Text>
-                <Text style={[style.r12,{color:Colors.primary,marginVertical:5}]}>Mon, Dec 16 • 18.00 - 22.00...</Text>
-                <View style={{flexDirection:'row',alignItems:'center',}}>
-                    <Icon name='location' size={20} color={Colors.primary}></Icon>
-                    <Text style={[style.r12,{color:theme.disable2,flex:1,marginHorizontal:10,}]}>Grand Building, ...</Text>
-                    <TouchableOpacity>
-                    <Icon name='heart-outline' size={20} color={Colors.primary}></Icon>
-                    </TouchableOpacity>                
-                </View>
-            </View>
-            </View>
-        </View>
-
-        <View style={{flexDirection:'row',marginBottom:80}}>
-        <View style={[{padding:5,flex:1}]}>
-            <View style={[style.shadow,{padding:10,backgroundColor:theme.borderbg,borderRadius:15}]}>
-                <ImageBackground source={require('../../assets/image/p7.png')}
-                resizeMode='stretch'
-                style={{height:height/6}}></ImageBackground>
-                <Text style={[style.b18,{color:theme.txt,marginTop:5}]}>Jazz Festival</Text>
-                <Text style={[style.r12,{color:Colors.primary,marginVertical:5}]}>Sun, Dec 24 • 19.00 - 23.00...</Text>
-                <View style={{flexDirection:'row',alignItems:'center',}}>
-                    <Icon name='location' size={20} color={Colors.primary}></Icon>
-                    <Text style={[style.r12,{color:theme.disable2,flex:1,marginHorizontal:10,}]}>Central Park, N...</Text>
-                    <TouchableOpacity>
-                    <Icon name='heart-outline' size={20} color={Colors.primary}></Icon>
-                    </TouchableOpacity>
-                </View>
-            </View>
-            </View>
-
-            <View style={[{padding:5,flex:1}]}>
-            <View style={[style.shadow,{padding:10,backgroundColor:theme.borderbg,borderRadius:15}]}>
-                <ImageBackground source={require('../../assets/image/p8.png')}
-                resizeMode='stretch'
-                style={{height:height/6}}></ImageBackground>
-                <Text style={[style.b18,{color:theme.txt,marginTop:5}]}>Music Concert</Text>
-                <Text style={[style.r12,{color:Colors.primary,marginVertical:5}]}>Sat, Dec 22 • 18.00 - 22.00...</Text>
-                <View style={{flexDirection:'row',alignItems:'center',}}>
-                    <Icon name='location' size={20} color={Colors.primary}></Icon>
-                    <Text style={[style.r12,{color:theme.disable2,flex:1,marginHorizontal:10,}]}>New Avenue, W...</Text>
-                    <TouchableOpacity>
-                    <Icon name='heart-outline' size={20} color={Colors.primary}></Icon>
-                    </TouchableOpacity>                
-                </View>
-            </View>
-            </View>
-        </View> 
-
-
- 
+                    <View style={{ marginTop: 100, marginBottom: 30 }} />
+                </>
+            )
+        }
 
         </ScrollView>
 
