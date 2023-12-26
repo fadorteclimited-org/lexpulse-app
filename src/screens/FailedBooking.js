@@ -31,7 +31,7 @@ export default function FailedBooking() {
                     </View>
                     <Image source={require('../../assets/image/failed.png')} resizeMode='stretch' style={{ height: height / 5.5, width: width / 2.5, alignSelf: 'center', marginTop: 10 }} />
                     <Text style={[style.apptitle, { color: '#F75555', textAlign: 'center', marginTop: 20 }]}>Oops, Failed!</Text>
-                    <Text style={[style.r16, { color: theme.txt, textAlign: 'center', marginTop: 10 }]}>Your payment failed. Please check and then try again.</Text>
+                    <Text style={[style.r16, { color: theme.txt, textAlign: 'center', marginTop: 10 }]}>Your booking failed. Please check and then try again.</Text>
                     <View style={{ marginTop: 20 }}>
                         <TouchableOpacity onPress={() => { navigation.navigate('BottomNavigator') }}
                             style={style.btn}>

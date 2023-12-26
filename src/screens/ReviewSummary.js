@@ -50,7 +50,8 @@ export default function ReviewSummary({ route }) {
                 "eventId": item._id,
                 "attendeeId": parsedValue.user.id,
                 "numberOfTickets": ticketsPurchased,
-                "totalPrice": Number(ticketsPurchased) * Number(item.price)
+                "totalPrice": Number(ticketsPurchased) * Number(item.price),
+                "status": "booked"
             };
             
             var url = ENDPOINTS.tickets;
@@ -66,14 +67,17 @@ export default function ReviewSummary({ route }) {
                 console.log(error.response);
                 onLoading(false);
                 onError(error.response.data.error);
+                navigation.navigate('FailedBooking');
             } else if (error.request) {
                 console.log(error.request);
                 onLoading(false);
                 onError('Problem signing in. Please try later!');
+                navigation.navigate('FailedBooking');
             } else {
                 console.log(error);
                 onLoading(false);
                 onError('Problem signing in. Please try later!');
+                navigation.navigate('FailedBooking');
             }
             });
             

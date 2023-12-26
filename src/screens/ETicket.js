@@ -16,6 +16,7 @@ import { ENDPOINTS } from '../api/constants';
 import axios from 'axios';
 import moment from 'moment';
 import RBSheet from 'react-native-raw-bottom-sheet';
+import RNQRGenerator from 'rn-qr-generator';
 
 
 const width = Dimensions.get('screen').width
@@ -30,6 +31,7 @@ export default function ETicket({ route }) {
     const [loading, onLoading] = useState(true);
     const [savedTicket, setSavedTicket] = useState(ticketId);
     const [ticketDetails, setTicketDetails] = useState({});
+    const [ticketQr, setTicketQr] = useState('');
 
     const fetchData = async () => {
         const jsonValue = await AsyncStorage.getItem('userDetails');
@@ -46,10 +48,18 @@ export default function ETicket({ route }) {
             var url = `${ENDPOINTS.tickets}/${savedTicket}`;
         
             axios.get(url, config)
-            .then((res) => {
+            .then(async (res) => {
                 onLoading(false);
-                console.log(res.data)
                 setTicketDetails(res.data.data);
+
+                const qrRes = await RNQRGenerator.generate({
+                    value: `https://verifyqr.lexpulse.app/${savedTicket}`,
+                    height: 200,
+                    width: 200,
+                    base64: true
+                });
+
+                setTicketQr(qrRes.base64);
             })
             .catch(error => {
                 console.log(error);
@@ -113,7 +123,7 @@ export default function ETicket({ route }) {
                         ) : (
                             <View style={{ paddingVertical: 10, paddingHorizontal: 5 }}>
                                 <View style={[style.shadow, { backgroundColor: theme.borderbg, borderRadius: 20, padding: 15 }]}>
-                                    <Image source={theme.eticket} resizeMode='stretch' style={{ height: height / 2.5, width: '100%', marginTop: 15, marginBottom: 15 }} />
+                                    <Image source={{ uri: `data:image/png;base64, ${ticketQr}` }} resizeMode='stretch' style={{ height: height / 2.5, width: '100%', marginTop: 15, marginBottom: 15 }} />
                                     <Text style={[style.b14, { color: theme.disable2 }]}>Event</Text>
                                     <Text style={[style.subtitle, { color: theme.txt, marginTop: 10 }]}>{ticketDetails?.eventId?.eventName}</Text>
                                     <Text style={[style.b14, { color: theme.disable2, marginTop: 10 }]}>Date</Text>

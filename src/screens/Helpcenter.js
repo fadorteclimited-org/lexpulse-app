@@ -28,14 +28,22 @@ const Tabs = () =>{
           tabBarIndicatorStyle:{backgroundColor:Colors.primary}            
 
           }}>
-            <Tab.Screen name="FAQ" component={FAQ} 
+            <Tab.Screen name="About" component={About} 
+                options={{
+                    tabBarShowLabel:true,
+                    tabBarLabel: ({focused, color,}) => (
+                    <Text style={{color: focused ? Colors.primary : Colors.disable,fontFamily:'Urbanist-Regular',textAlign:'center',fontSize:16}}>About</Text>
+                    ),
+                    headerShown:false,
+                }}/>
+            {/* <Tab.Screen name="FAQ" component={FAQ} 
                 options={{
                     tabBarShowLabel:true,
                     tabBarLabel: ({focused, color,}) => (
                     <Text style={{color: focused ? Colors.primary : Colors.disable,fontFamily:'Urbanist-Regular',textAlign:'center',fontSize:16}}>FAQ</Text>
                     ),
                     headerShown:false,
-                }}/>
+                }}/> */}
             <Tab.Screen name="Contact us" component={Contactus}
                 options={{
                     tabBarShowLabel:true,
@@ -48,7 +56,56 @@ const Tabs = () =>{
       )
 }
 
-const FAQ = () =>{
+const About = () => {
+    
+    const theme = useContext(themeContext);
+    const navigation = useNavigation();
+
+    return(
+        <SafeAreaView style={[style.area,{backgroundColor:theme.bg,}]}>
+            <ScrollView nestedScrollEnabled={true} showsVerticalScrollIndicator={false}>
+
+            <View style={{padding:5,marginTop:10}}>
+                <View style={[style.shadow,{backgroundColor:theme.bg,padding:20,borderRadius:20}]}>
+                    <View style={{alignItems:'center'}}>
+                        <Image source={require('../../assets/image/logo1.png')} resizeMode='stretch' style={{ height: height / 35, width: width / 15, marginVertical: 10 }} />
+                        <Text style={[style.b18,{color:theme.txt}]}>Lexpulse</Text>
+                        {/* <Icons name='chevron-right' color={theme.txt} size={30} /> */}
+                    </View>
+                    <View style={[style.divider,{backgroundColor:theme.border,marginVertical:15}]}></View>
+                    <Text style={[style.r14,{color:theme.disable1}]}>Lexpulse is a groundbreaking social event and networking app designed to enhance the event experience for both event organizers and attendees.</Text>
+                </View>
+            </View>
+
+            <View style={{padding:5,marginTop:10}}>
+                <View style={[style.shadow,{backgroundColor:theme.bg,padding:15,borderRadius:10,flexDirection:'row',alignItems:'center',justifyContent:'space-between'}]}>
+                    <Text style={[style.b18,{color:theme.txt,flex:1}]}>Terms and Conditions</Text>
+                    <View>
+                    <Icons name='chevron-right' color={theme.txt} size={30} />
+                    </View>
+                </View>
+            </View>
+
+            <View style={{padding:5,marginTop:10}}>
+                <View style={[style.shadow,{backgroundColor:theme.bg,padding:15,borderRadius:10,flexDirection:'row',alignItems:'center',justifyContent:'space-between'}]}>
+                    <Text style={[style.b18,{color:theme.txt,flex:1}]}>Privacy Policy</Text>
+                    <View>
+                    <Icons name='chevron-right' color={theme.txt} size={30} />
+                    </View>
+                </View>
+            </View>
+
+            <View style={{padding:5,marginTop:10}}>
+                <View style={{backgroundColor:theme.bg,padding:15,borderRadius:10,alignItems:'center'}}>
+                    <Text style={[style.b10,{color:theme.txt,}]}>Version 1.0.0</Text>
+                </View>
+            </View>
+            </ScrollView>
+        </SafeAreaView>
+    )
+}
+
+const FAQ = () => {
     
     const theme = useContext(themeContext);
     const navigation=useNavigation();
@@ -146,64 +203,33 @@ const FAQ = () =>{
     )
 }
 
-const Contactus = () =>{
+const Contactus = () => {
     
     const theme = useContext(themeContext);
     const navigation=useNavigation();
 
-    const categories =['All', 'Popular', 'Recommendation', 'Frequently visited'];
-
-    const [categoryIndex, setcategoryIndex] = useState(0)
-  
-    const Categorylist=()=>{
-      return( <View style={style.categorycontainer}>
-        {categories.map((item,index)=>(
-          <TouchableOpacity key={index} 
-            activeOpacity={0.8}
-            onPress={()=>setcategoryIndex(index)}>
-            <Text 
-             key={index} 
-             style={[
-             style.categoryText ,{color:theme.txt},
-             categoryIndex==index && style.categoryTextSelected]}>
-            {item}
-          </Text>
-          </TouchableOpacity>
-          
-        ))}
-      </View>
-      );
-    };
-
-
-
     return(
         <SafeAreaView style={[style.area,{backgroundColor:theme.bg,}]}>
-            <View style={{marginTop:10,marginBottom:20}}>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                    <Categorylist/>
-                </ScrollView>
-            </View>
             <ScrollView nestedScrollEnabled={true} showsVerticalScrollIndicator={false}>
-            <View style={{padding:5,marginTop:-25}}>
+            <View style={{padding:5,marginTop:10}}>
                 <View style={[style.shadow,{backgroundColor:theme.bg,padding:15,borderRadius:10,flexDirection:'row',alignItems:'center',justifyContent:'space-between'}]}>
-                    <Icon name='headset-sharp' size={27} color={Colors.primary}></Icon>
-                    <Text style={[style.b18,{color:theme.txt,flex:1,marginLeft:10}]}>Customer Service</Text>
+                    <Icon name='mail-outline' size={27} color={Colors.primary}></Icon>
+                    <Text style={[style.b18,{color:theme.txt,flex:1,marginLeft:10}]}>Email</Text>
                 </View>
             </View>
-            <View style={{padding:5,marginTop:10}}>
+            {/* <View style={{padding:5,marginTop:10}}>
                 <View style={[style.shadow,{backgroundColor:theme.bg,padding:15,borderRadius:10,flexDirection:'row',alignItems:'center',justifyContent:'space-between'}]}>
                     <Icon name='logo-whatsapp' size={27} color={Colors.primary}></Icon>
                     <Text style={[style.b18,{color:theme.txt,flex:1,marginLeft:10}]}>WhatsApp</Text>
                 </View>
-            </View>
+            </View> */}
             <View style={{padding:5,marginTop:10}}>
                 <View style={[style.shadow,{backgroundColor:theme.bg,padding:15,borderRadius:10,flexDirection:'row',alignItems:'center',justifyContent:'space-between'}]}>
                     <Icon name='globe-outline' size={27} color={Colors.primary}></Icon>
                     <Text style={[style.b18,{color:theme.txt,flex:1,marginLeft:10}]}>Website</Text>
                 </View>
             </View>
-            <View style={{padding:5,marginTop:10}}>
+            {/* <View style={{padding:5,marginTop:10}}>
                 <View style={[style.shadow,{backgroundColor:theme.bg,padding:15,borderRadius:10,flexDirection:'row',alignItems:'center',justifyContent:'space-between'}]}>
                     <Icons name='facebook' size={27} color={Colors.primary}></Icons>
                     <Text style={[style.b18,{color:theme.txt,flex:1,marginLeft:10}]}>Facebook</Text>
@@ -214,7 +240,7 @@ const Contactus = () =>{
                     <Icon name='logo-twitter' size={27} color={Colors.primary}></Icon>
                     <Text style={[style.b18,{color:theme.txt,flex:1,marginLeft:10}]}>Twitter</Text>
                 </View>
-            </View>
+            </View> */}
             <View style={{padding:5,marginTop:10}}>
                 <View style={[style.shadow,{backgroundColor:theme.bg,padding:15,borderRadius:10,flexDirection:'row',alignItems:'center',justifyContent:'space-between'}]}>
                     <Icon name='logo-instagram' size={27} color={Colors.primary}></Icon>
@@ -240,20 +266,13 @@ export default function Helpcenter() {
             title='Help Center'
             titleStyle={[style.apptitle,{color:theme.txt}]}
             elevation={0}
-            leading={ <TouchableOpacity onPress={()=>navigation.navigate('Profile')}>
+            leading={ <TouchableOpacity onPress={()=>navigation.goBack()}>
             <Icon name="arrow-back"  
             // style={{backgroundColor:Colors.secondary,}}  
             color={theme.txt} size={30}
             />
             </TouchableOpacity>}
-            trailing={ <TouchableOpacity>
-            <Icon name="ellipsis-horizontal-circle"  
-            // style={{backgroundColor:Colors.secondary,}}  
-            color={theme.txt} size={30}
             />
-            </TouchableOpacity>
-        
-        }/>
 
         <Tabs></Tabs>
 

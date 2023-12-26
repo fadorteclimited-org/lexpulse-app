@@ -44,7 +44,7 @@ export default function MyTabs() {
     }}
     />
   
-    <Tab.Screen name="Explore1" component={Explore1}
+    {/* <Tab.Screen name="Explore1" component={Explore1}
      options={{
       tabBarShowLabel:true,
       tabBarLabel: ({focused, color,}) => (
@@ -55,7 +55,7 @@ export default function MyTabs() {
         color={ focused ? Colors.primary : Colors.disable} />
       },
       headerShown:false,
-    }} />
+    }} /> */}
  <Tab.Screen name="FCard" component={FCards}
      options={{
       tabBarShowLabel:true,

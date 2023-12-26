@@ -1,5 +1,6 @@
-import { View, Text, TextInput, ScrollView, TouchableOpacity, ImageBackground, Image, Dimensions, KeyboardAvoidingView, Modal, Switch } from 'react-native'
-import React, { useState, useContext, useRef } from 'react'
+import { ActivityIndicator, View, Text, TextInput, ScrollView, TouchableOpacity, ImageBackground, Image, Dimensions, KeyboardAvoidingView, Modal, Switch } from 'react-native'
+import React, { useState, useContext, useEffect } from 'react'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Colors } from '../theme/color'
 import style from '../theme/style'
 import themeContext from '../theme/themeContex'
@@ -13,6 +14,8 @@ import Clipboard from '@react-native-clipboard/clipboard'
 import { SafeAreaView } from 'react-native'
 import RBSheet from 'react-native-raw-bottom-sheet';
 import { EventRegister } from 'react-native-event-listeners'
+import { ENDPOINTS } from '../api/constants';
+import axios from 'axios';
 
 
 
@@ -22,7 +25,70 @@ const height = Dimensions.get('screen').height
 export default function Profile() {
     const theme = useContext(themeContext);
     const navigation = useNavigation();
-    const [darkMode, setDarkMode] = useState('false')
+    const [darkMode, setDarkMode] = useState('false');
+    
+    const [loading, onLoading] = useState(true);
+    const [error, onError] = useState('');
+    const [profile, setProfile] = useState({});
+
+    const fetchData = async () => {
+        const jsonValue = await AsyncStorage.getItem('userDetails');
+        const parsedValue = JSON.parse(jsonValue);
+        
+        try {
+            var config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${parsedValue.token}`
+                }
+            };
+            
+            var url = `${ENDPOINTS.signup}/${parsedValue.user.id}`;
+        
+            axios.get(url, config)
+            .then((res) => {
+                onLoading(false);
+                setProfile(res.data.data);
+            })
+            .catch(error => {
+                
+                if (error.response) {
+                    onLoading(false);
+                    onError(error.response.data.msg);
+                } else if (error.request) {
+                    console.log(error.request);
+                    onLoading(false);
+                    onError('Problem signing in. Please try later!');
+                } else {
+                    onLoading(false);
+                    onError('Problem signing in. Please try later!');
+                }
+            });
+            
+        } catch (error) {
+            onLoading(false);
+            console.log(error);
+        }
+    };
+
+    useEffect(() => {
+        const fetchDataAndHandleErrors = async () => {
+            try {
+                await fetchData();
+            } catch (error) {
+                console.log('Error in fetchData:', error);
+                // Handle errors here if needed
+            }
+        };
+    
+        fetchDataAndHandleErrors();
+    }, [fetchData]);
+
+    const logOut = () => {
+        AsyncStorage.removeItem('userDetails');
+        navigation.navigate("Login");
+    };
+
     return (
         <SafeAreaView style={[style.area, { backgroundColor: theme.bg }]}>
             <View style={[style.main, { backgroundColor: theme.bg, marginTop: 30 }]}>
@@ -31,36 +97,45 @@ export default function Profile() {
                         <Image source={require('../../assets/image/logo1.png')} resizeMode='stretch' style={{ height: height / 35, width: width / 15 }} />
                         <Text style={[style.apptitle, { color: theme.txt, marginLeft: 10 }]}>Profile</Text>
                     </View>
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    {/* <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <Icon name='ellipsis-horizontal-circle' color={Colors.active} size={25} style={{ marginRight: 5 }} />
 
-                    </View>
+                    </View> */}
                 </View>
-                <View style={{ alignItems: 'center', marginTop: 20 }}>
-                    <Image source={require('../../assets/image/user.png')} resizeMode='stretch' style={{ height: height / 7, width: width / 3.2 }} />
-                    <Text style={[style.title, { color: theme.txt, marginTop: 15 }]}>Kwame Sarpong</Text>
-                </View>
+                {
+                    loading ? (
+                        <View style={{ width: '100%', height: '100%', paddingTop: '30%' }}>
+                            <ActivityIndicator size="large" color="#584CF4" />
+                        </View>
+                    ) : (
+                        <View style={{ alignItems: 'center', marginTop: 20 }}>
+                            <Image source={require('../../assets/image/user.png')} resizeMode='stretch' style={{ height: height / 7, width: width / 3.2 }} />
+                            <Text style={[style.title, { color: theme.txt, marginTop: 15, marginBottom: 10 }]}>{`${profile?.user?.firstName} ${profile?.user?.lastName}`}</Text>
+                            <Text style={[style.r12, { color: theme.txt, marginLeft: 10 }]}>{profile?.user?.email}</Text>
+                        </View>
+                    )
+                }
                 <ScrollView showsVerticalScrollIndicator={false}>
                     <View style={[style.divider, { backgroundColor: theme.border, marginVertical: 15 }]}></View>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center' }}>
                         <View style={{ alignItems: 'center' }}>
-                            <Text style={[style.title, { color: theme.txt, }]}>12</Text>
-                            <Text style={[style.r16, { color: theme.disable2, marginTop: 10 }]}>Events</Text>
+                            <Text style={[style.title, { color: theme.txt, }]}></Text>
+                            <Text style={[style.r16, { color: theme.disable2, marginTop: 10 }]}></Text>
                         </View>
                         <View style={[style.verticaldivider, { backgroundColor: theme.border, height: '80%' }]}></View>
                         <View style={{ alignItems: 'center' }}>
-                            <Text style={[style.title, { color: theme.txt, }]}>7,389</Text>
-                            <Text style={[style.r16, { color: theme.disable2, marginTop: 10 }]}>Followers</Text>
+                            <Text style={[style.title, { color: theme.txt, }]}>{profile?.points ? (profile?.points?.newBalance) : ('0')}</Text>
+                            <Text style={[style.r16, { color: theme.disable2, marginTop: 10 }]}>Points Earned</Text>
                         </View>
                         <View style={[style.verticaldivider, { backgroundColor: theme.border, height: '80%' }]}></View>
                         <View style={{ alignItems: 'center' }}>
-                            <Text style={[style.title, { color: theme.txt, }]}>125</Text>
-                            <Text style={[style.r16, { color: theme.disable2, marginTop: 10 }]}>Following</Text>
+                            <Text style={[style.title, { color: theme.txt, }]}></Text>
+                            <Text style={[style.r16, { color: theme.disable2, marginTop: 10 }]}></Text>
                         </View>
                     </View>
                     <View style={[style.divider, { backgroundColor: theme.border, marginVertical: 15 }]}></View>
 
-                    <TouchableOpacity style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    {/* <TouchableOpacity style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                         <View style={{ flexDirection: 'row' }}>
                             <Icons name='calendar-month-outline' size={25} color={theme.txt} />
                             <Text style={[style.b18, { color: theme.txt, marginLeft: 10 }]}>Manage Events</Text>
@@ -76,18 +151,18 @@ export default function Profile() {
                         <Icons name='chevron-right' color={theme.txt} size={30} />
                     </TouchableOpacity>
 
-                    <View style={[style.divider, { backgroundColor: theme.border, marginVertical: 15 }]}></View>
+                    <View style={[style.divider, { backgroundColor: theme.border, marginVertical: 15 }]}></View> */}
 
                     <TouchableOpacity onPress={() => navigation.navigate('Profile2')}
-                        style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', }}>
+                        style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
                         <View style={{ flexDirection: 'row' }}>
                             <Icons name='account-outline' size={25} color={theme.txt} />
-                            <Text style={[style.b18, { color: theme.txt, marginLeft: 10 }]}>Profile</Text>
+                            <Text style={[style.b18, { color: theme.txt, marginLeft: 10 }]}>Update Profile</Text>
                         </View>
                         <Icons name='chevron-right' color={theme.txt} size={30} />
                     </TouchableOpacity>
 
-                    <TouchableOpacity onPress={() => navigation.navigate('Notification')}
+                    {/* <TouchableOpacity onPress={() => navigation.navigate('Notification')}
                         style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 15 }}>
                         <View style={{ flexDirection: 'row' }}>
                             <Icons name='bell-outline' size={25} color={theme.txt} />
@@ -141,9 +216,9 @@ export default function Profile() {
                             <Text style={[style.b18, { color: theme.txt, marginLeft: 10, marginRight: 5 }]}>English(US)</Text>
                             <Icons name='chevron-right' color={theme.txt} size={30} />
                         </View>
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
 
-                    <TouchableOpacity style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 15 }}>
+                    <TouchableOpacity style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
                         <View style={{ flexDirection: 'row' }}>
                             <Icons name='eye-outline' size={25} color={theme.txt} />
                             <Text style={[style.b18, { color: theme.txt, marginLeft: 10 }]}>Dark Mode</Text>
@@ -163,7 +238,7 @@ export default function Profile() {
                     </TouchableOpacity>
 
                     <TouchableOpacity onPress={() => navigation.navigate('Helpcenter')}
-                        style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 15 }}>
+                        style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
                         <View style={{ flexDirection: 'row' }}>
                             <Icon name='information-circle-outline' size={25} color={theme.txt} />
                             <Text style={[style.b18, { color: theme.txt, marginLeft: 10 }]}>Help Center</Text>
@@ -172,7 +247,7 @@ export default function Profile() {
                     </TouchableOpacity>
 
                     <TouchableOpacity onPress={() => navigation.navigate('Invited')}
-                        style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 15 }}>
+                        style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
                         <View style={{ flexDirection: 'row' }}>
                             <Icons name='account-group-outline' size={25} color={theme.txt} />
                             <Text style={[style.b18, { color: theme.txt, marginLeft: 10 }]}>Invite Friends</Text>
@@ -180,17 +255,17 @@ export default function Profile() {
                         <Icons name='chevron-right' color={theme.txt} size={30} />
                     </TouchableOpacity>
 
-                    <TouchableOpacity
+                    {/* <TouchableOpacity
                         style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 15 }}>
                         <View style={{ flexDirection: 'row' }}>
                             <Icon name='star-outline' size={25} color={theme.txt} />
                             <Text style={[style.b18, { color: theme.txt, marginLeft: 10 }]}>Rate Us</Text>
                         </View>
                         <Icons name='chevron-right' color={theme.txt} size={30} />
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
 
                     <TouchableOpacity onPress={() => this.RBSheet8.open()}
-                        style={{ flexDirection: 'row', alignItems: 'center', marginTop: 15, marginBottom: 90 }}>
+                        style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 90 }}>
                         <RBSheet ref={ref => {
                             this.RBSheet8 = ref;
                         }}
@@ -216,7 +291,7 @@ export default function Profile() {
                                     </View>
                                     <View style={{ marginHorizontal: 10 }}></View>
                                     <View style={{ flex: 1 }}>
-                                        <TouchableOpacity onPress={() => {this.RBSheet8.close(),navigation.navigate('Login')}}
+                                        <TouchableOpacity onPress={() => { this.RBSheet8.close(), logOut() }}
                                         style={[style.btn,]}>
                                             <Text style={[style.btntxt, { color: Colors.secondary }]}>Yes, Logout</Text>
                                         </TouchableOpacity>

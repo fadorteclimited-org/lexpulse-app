@@ -1,5 +1,6 @@
-import { View, Text, TextInput, ScrollView, TouchableOpacity, ImageBackground, Image, Dimensions, KeyboardAvoidingView, Modal } from 'react-native'
-import React, { useState, useContext } from 'react'
+import { ActivityIndicator, View, Text, TextInput, ScrollView, TouchableOpacity, ImageBackground, Image, Dimensions, KeyboardAvoidingView, Modal } from 'react-native'
+import React, { useState, useContext, useEffect } from 'react'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Colors } from '../theme/color'
 import style from '../theme/style'
 import themeContext from '../theme/themeContex'
@@ -15,6 +16,9 @@ import { HStack } from '@react-native-material/core';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import FList from './FList'
 import All from './All'
+import { ENDPOINTS } from '../api/constants';
+import axios from 'axios';
+import moment from 'moment';
 import TopNavigator from '../navigator/TopNavigator'
 
 const width = Dimensions.get('screen').width
@@ -22,10 +26,10 @@ const height = Dimensions.get('screen').height
 
 const Tab = createMaterialTopTabNavigator();
 
-const Top =()=>{
+const Top = () => {
 
   const theme = useContext(themeContext);
-  const [darkMode,setDarkMode] = useState('false')
+  const [darkMode, setDarkMode] = useState('false')
 
   return (
     <Tab.Navigator
@@ -122,7 +126,7 @@ const Top =()=>{
 
 
 
-const Favorites = () =>{
+const Favorites = () => {
     const theme = useContext(themeContext);
     const navigation = useNavigation();
     const [L1, setL1] = useState(false);
@@ -272,6 +276,64 @@ const Favorites = () =>{
 export default function FCards() {
     const theme = useContext(themeContext);
     const navigation = useNavigation();
+    
+    const [loading, onLoading] = useState(true);
+    const [error, onError] = useState('');
+    const [list, setList] = useState([]);
+
+    const fetchData = async () => {
+        const jsonValue = await AsyncStorage.getItem('userDetails');
+        const parsedValue = JSON.parse(jsonValue);
+        
+        try {
+            var config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${parsedValue.token}`
+                }
+            };
+            
+            var url = `${ENDPOINTS.favorites}/user/${parsedValue.user.id}`;
+        
+            axios.get(url, config)
+            .then((res) => {
+                onLoading(false);
+                setList(res.data.data);
+            })
+            .catch(error => {
+                console.log(error);
+                
+                if (error.response) {
+                    onLoading(false);
+                    onError(error.response.data.msg);
+                } else if (error.request) {
+                    console.log(error.request);
+                    onLoading(false);
+                    onError('Problem signing in. Please try later!');
+                } else {
+                    onLoading(false);
+                    onError('Problem signing in. Please try later!');
+                }
+            });
+            
+        } catch (error) {
+            onLoading(false);
+            console.log(error);
+        }
+    };
+
+    useEffect(() => {
+        const fetchDataAndHandleErrors = async () => {
+            try {
+                await fetchData();
+            } catch (error) {
+                console.log('Error in fetchData:', error);
+                // Handle errors here if needed
+            }
+        };
+    
+        fetchDataAndHandleErrors();
+    }, []);
   
     return (
         <SafeAreaView style={[style.area, { backgroundColor: theme.bg }]}>
@@ -281,14 +343,60 @@ export default function FCards() {
                         <Image source={require('../../assets/image/logo1.png')} resizeMode='stretch' style={{ height: height / 35, width: width / 15 }} />
                         <Text style={[style.apptitle, { color: theme.txt, marginLeft: 5 }]}>Favorites</Text>
                     </View>
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <Icon name='search' color={Colors.active} size={25} style={{ marginRight: 5 }} />
-                        <TouchableOpacity >
-                            <Image source={theme.filter} resizeMode='stretch' style={{ height: height / 38, width: width / 20, }} />
-                        </TouchableOpacity>
-                    </View>
                 </View>
-            <Top></Top>
+                {/* <Top></Top> */}
+
+                <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center',marginVertical:30,}}>
+                    <Text style={[style.subtitle,{color:theme.txt}]}>See all your saved events</Text>
+                    {/* <TouchableOpacity onPress={() => navigation.navigate('Resultlist')}>
+                    <Text style={[style.b16,{color:Colors.primary}]}>See All</Text>
+                    </TouchableOpacity> */}
+                </View>
+
+                <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{height:height / 1.5}}>
+                {
+                    loading ? (
+                        <View style={{ width: '100%', height: '100%', paddingTop: '30%' }}>
+                            <ActivityIndicator size="large" color="#584CF4" />
+                        </View>
+                    ) : (
+                        <>
+                        {
+                            list.length > 0 ? (
+                                <View style={{flexDirection:'row', flexWrap: 'wrap', width: '100%'}}>
+                                    
+                                    {
+                                        list.map((item, index) => (
+                                            <TouchableOpacity style={[{ padding: 5, width: "50%" }]} key={index} activeOpacity={0.9} onPress={() => navigation.navigate('EventDetail', { itemObj: item.eventId })}>
+                                                <View style={[style.shadow, { padding: 10, backgroundColor: theme.borderbg, borderRadius: 15 }]}>
+                                                    <ImageBackground source={{ uri: item.eventId.image[0] }}
+                                                        resizeMode='stretch'
+                                                        imageStyle={{ borderRadius: 20 }}
+                                                        style={{ height: height / 6 }}></ImageBackground>
+                                                    <Text style={[style.b18, { color: theme.txt, marginTop: 5 }]}>{item.eventId.eventName}</Text>
+                                                    <Text style={[style.r12, { color: Colors.primary, marginVertical: 5 }]}>{moment.utc(item.eventId.eventDate).local().format('MMM DD, YYYY')}</Text>
+                                                    <View style={{ flexDirection: 'row', alignItems: 'center', }}>
+                                                        <Icon name='location' size={20} color={Colors.primary}></Icon>
+                                                        <Text style={[style.r12,{color:theme.disable2,flex:1,marginHorizontal:10,}]}>{item.eventId.location ? (item.eventId.location.length > 10 ? `${item.eventId.location.substring(0, 10)}...` : item.eventId.location) : 'No Location'}</Text>
+                                                        <View>
+                                                            <Icon name='list-circle-outline' size={20} color={Colors.primary}></Icon>
+                                                        </View>
+                                                    </View>
+                                                </View>
+                                            </TouchableOpacity>
+                                        ))
+                                    }
+                                </View>
+                            ) : (
+                                <View style={{ height: '80%', width: '100%', alignItems: 'center' }}>
+                                    <Image source={require('../../assets/image/noevents.png')} resizeMode='stretch' style={{width:width/1.5, height:height/4.2, marginTop: '30%' }}></Image>
+                                </View>
+                            )
+                        }
+                        </>
+                    )
+                }
+                </ScrollView>
             
             </View>
         </SafeAreaView>

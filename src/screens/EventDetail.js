@@ -1,5 +1,6 @@
-import { View, Text, Dimensions, SafeAreaView, ImageBackground, TextInput, FlatList, StatusBar, TouchableOpacity, Image, ScrollView } from 'react-native'
+import { ActivityIndicator, View, Text, Dimensions, SafeAreaView, ImageBackground, TextInput, FlatList, StatusBar, TouchableOpacity, Image, ScrollView, Modal } from 'react-native'
 import React, { useState, useContext } from 'react'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import theme from '../theme/theme';
 import themeContext from '../theme/themeContex';
 import style from '../theme/style';
@@ -8,6 +9,8 @@ import { useNavigation } from '@react-navigation/native';
 import { AppBar, HStack, Avatar } from '@react-native-material/core';
 import Icon from 'react-native-vector-icons/Ionicons';
 import RBSheet from 'react-native-raw-bottom-sheet';
+import { ENDPOINTS } from '../api/constants';
+import axios from 'axios';
 import moment from 'moment';
 
 
@@ -20,9 +23,68 @@ export default function EventDetail({ route }) {
     const theme = useContext(themeContext);
     const navigation = useNavigation();
     
-    const [loading, onLoading] = useState(true);
+    const [loading, onLoading] = useState(false);
     const [error, onError] = useState('');
     const [item, setItem] = useState(itemObj);
+    const [isvisible, setIsVisible] = useState(false)
+    const [isVisibleSuccess, setIsVisibleSuccess] = useState(false)
+    const [isVisibleFailed, setIsVisibleFailed] = useState(false)
+
+    const saveEvent = async () => {
+        onLoading(true);
+  
+        try {
+          const jsonValue = await AsyncStorage.getItem('userDetails');
+          const parsedValue = JSON.parse(jsonValue);
+
+          var config = {
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${parsedValue.token}`
+            }
+          };
+      
+          var data = {
+            "userId": parsedValue.user.id,
+            "eventId": item._id
+          };
+          
+          var url = `${ENDPOINTS.favorites}`;
+      
+          axios.post(url, data, config)
+          .then(async (res) => {
+            onLoading(false);
+
+            setIsVisible(false);
+            setIsVisibleSuccess(true);
+          })
+          .catch(error => {
+            
+            if (error.response) {
+            console.log(error.response)
+              onLoading(false);
+              onError(error.response.data.error);
+              setIsVisible(false);
+              setIsVisibleFailed(true);
+            } else if (error.request) {
+              console.log(error.request);
+              onLoading(false);
+              onError('Problem signing in. Please try later!');
+              setIsVisible(false);
+              setIsVisibleFailed(true);
+            } else {
+              onLoading(false);
+              onError('Problem signing in. Please try later!');
+              setIsVisible(false);
+              setIsVisibleFailed(true);
+            }
+          });
+          
+        } catch (error) {
+          onLoading(false);
+          console.log(error);
+        }
+      };
 
     return (
         <SafeAreaView style={[style.area, { backgroundColor: theme.bg, }]}>
@@ -42,8 +104,10 @@ export default function EventDetail({ route }) {
                         }
                         trailing={
                             <HStack>
-                                <Icon name='heart-outline' color={Colors.secondary} size={25} style={{ marginRight: 15 }} />
-                                <TouchableOpacity onPress={() => this.RBSheet1.open()}>
+                                <TouchableOpacity onPress={() => setIsVisible(true)}>
+                                    <Icon name='heart-outline' color={Colors.secondary} size={25} style={{ }} />
+                                </TouchableOpacity>
+                                <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => this.RBSheet1.open()}>
                                     <RBSheet ref={ref => {
                                         this.RBSheet1 = ref;
                                     }}
@@ -277,6 +341,104 @@ export default function EventDetail({ route }) {
                 </TouchableOpacity>
             </View>
 
+            <Modal transparent={true} visible={isvisible}>
+                <View style={{
+                    flex: 1,
+                    backgroundColor: '#000000aa',
+                    transparent: 'true'
+                }}>
+                    <View style={[style.modalcontainer, { backgroundColor: theme.bg, width: width - 40, borderRadius: 30 ,marginVertical:110}]}>
+                        <View style={{ marginHorizontal: 20, marginTop: 10 }}>
+                            <View style={{ alignItems: 'flex-end' }}>
+                                <TouchableOpacity onPress={() => { setIsVisible(false) }}>
+                                    <Icon name='close' size={20} color={theme.txt} />
+                                </TouchableOpacity>
+                            </View>
+                            <Image source={require('../../assets/image/confirm.png')} resizeMode='stretch' style={{ height: height / 5.5, width: width / 2.5, alignSelf: 'center', marginTop: 10 }} />
+                            <Text style={[style.apptitle, { color: Colors.primary, textAlign: 'center', marginTop: 20 }]}>Confirm</Text>
+                            <Text style={[style.r16, { color: theme.txt, textAlign: 'center', marginTop: 10 }]}>Do you want to save this event for later?</Text>
+
+                            {
+                                loading ? (
+                                    <View style={{marginTop:20}}>
+                                        <TouchableOpacity style={style.btn}>
+                                            <ActivityIndicator size="small" color="#ffffff" />
+                                        </TouchableOpacity>
+                                    </View>
+                                ) : (
+                                    <View style={{ marginTop: 20 }}>
+                                        <TouchableOpacity onPress={() => {saveEvent()}}
+                                            style={style.btn}>
+                                            <Text style={style.btntxt}>Yes</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                )
+                            }
+                            
+                            <View style={{ marginTop: 20 }}>
+                                <TouchableOpacity onPress={() => {setIsVisible(false)}}
+                                    style={[style.btn,{backgroundColor:theme.btn}]}>
+                                    <Text style={[style.btntxt,{color:Colors.primary}]}>Cancel</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+
+            <Modal transparent={true} visible={isVisibleSuccess}>
+                <View style={{
+                    flex: 1,
+                    backgroundColor: '#000000aa',
+                    transparent: 'true'
+                }}>
+                    <View style={[style.modalcontainer, { backgroundColor: theme.bg, width: width - 40, borderRadius: 30 ,marginVertical:110}]}>
+                        <View style={{ marginHorizontal: 20, marginTop: 10 }}>
+                            <View style={{ alignItems: 'flex-end' }}>
+                                <TouchableOpacity onPress={() => { setIsVisibleSuccess(false) }}>
+                                    <Icon name='close' size={20} color={theme.txt} />
+                                </TouchableOpacity>
+                            </View>
+                            <Image source={require('../../assets/image/congrats1.png')} resizeMode='stretch' style={{ height: height / 5.5, width: width / 2.5, alignSelf: 'center', marginTop: 10 }} />
+                            <Text style={[style.apptitle, { color: Colors.primary, textAlign: 'center', marginTop: 20 }]}>Success!</Text>
+                            <Text style={[style.r16, { color: theme.txt, textAlign: 'center', marginTop: 10 }]}>Event has been saved in your favorites.</Text>
+                            <View style={{ marginTop: 20 }}>
+                                <TouchableOpacity onPress={() => {setIsVisibleSuccess(false)}}
+                                    style={style.btn}>
+                                    <Text style={style.btntxt}>Done</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+
+            <Modal transparent={true} visible={isVisibleFailed}>
+                <View style={{
+                    flex: 1,
+                    backgroundColor: '#000000aa',
+                    transparent: 'true'
+                }}>
+                    <View style={[style.modalcontainer, { backgroundColor: theme.bg, width: width - 40, borderRadius: 30 ,marginVertical:110}]}>
+                        <View style={{ marginHorizontal: 20, marginTop: 10 }}>
+                            <View style={{ alignItems: 'flex-end' }}>
+                                <TouchableOpacity onPress={() => { setIsVisibleFailed(false) }}>
+                                    <Icon name='close' size={20} color={theme.txt} />
+                                </TouchableOpacity>
+                            </View>
+                            <Image source={require('../../assets/image/failed.png')} resizeMode='stretch' style={{ height: height / 5.5, width: width / 2.5, alignSelf: 'center', marginTop: 10 }} />
+                            <Text style={[style.apptitle, { color: '#F75555', textAlign: 'center', marginTop: 20 }]}>Oops, Failed!</Text>
+                            <Text style={[style.r16, { color: theme.txt, textAlign: 'center', marginTop: 10 }]}>{error}</Text>
+                            <View style={{ marginTop: 20 }}>
+                                <TouchableOpacity onPress={() => setIsVisibleFailed(false)}
+                                    style={[style.btn,{backgroundColor:theme.btn}]}>
+                                    <Text style={[style.btntxt,{color:Colors.primary}]}>Close</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
         </SafeAreaView>
     )
 }

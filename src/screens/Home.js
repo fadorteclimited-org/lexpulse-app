@@ -12,6 +12,7 @@ import {Avatar} from 'react-native-paper';
 import { ENDPOINTS } from '../api/constants';
 import axios from 'axios';
 import moment from 'moment';
+import DropDownPicker from 'react-native-dropdown-picker';
 import { color } from 'react-native-elements/dist/helpers';
 import TopNavigator from '../navigator/TopNavigator';
 // import Demo from './Demo';
@@ -24,10 +25,19 @@ export default function Home() {
     const navigation = useNavigation();
 
     const [userDets, setUserDets] = useState({});
+
+    const [open, setOpen] = useState(false);
+    const [value, setValue] = useState(null);
+    const [items, setItems] = useState([
+        {label: 'Ghana', value: 'Ghana'},
+        {label: 'Kenya', value: 'Kenya'},
+        {label: 'Nigeria', value: 'Nigeria'},
+        {label: 'South Africa', value: 'South Africa'}
+    ]);
     
     const [loading, onLoading] = useState(true);
     const [error, onError] = useState('');
-    const [list, setList] = useState(true);
+    const [list, setList] = useState([]);
 
     const fetchData = async () => {
         const jsonValue = await AsyncStorage.getItem('userDetails');
@@ -41,12 +51,13 @@ export default function Home() {
                 }
             };
             
-            var url = `${ENDPOINTS.events}`;
+            var url = `${ENDPOINTS.events + (parsedValue.user.country ? (`?country=${parsedValue.user.country}`) : (``))}`;
         
             axios.get(url, config)
             .then((res) => {
                 onLoading(false);
                 setList(res.data.data);
+                setValue(parsedValue.user.country);
             })
             .catch(error => {
                 console.log(error);
@@ -99,6 +110,48 @@ export default function Home() {
         fetchUserDetails();
     }, []);
 
+    const getNewCountryEvents = async (country) => {
+        onLoading(true);
+        const jsonValue = await AsyncStorage.getItem('userDetails');
+        const parsedValue = JSON.parse(jsonValue);
+        
+        try {
+            var config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${parsedValue.token}`
+                }
+            };
+            
+            var url = `${ENDPOINTS.events + (country.value ? (`?country=${country.value}`) : (``))}`;
+        
+            axios.get(url, config)
+            .then((res) => {
+                onLoading(false);
+                setList(res.data.data);
+            })
+            .catch(error => {
+                console.log(error);
+                
+                if (error.response) {
+                    onLoading(false);
+                    onError(error.response.data.msg);
+                } else if (error.request) {
+                    console.log(error.request);
+                    onLoading(false);
+                    onError('Problem signing in. Please try later!');
+                } else {
+                    onLoading(false);
+                    onError('Problem signing in. Please try later!');
+                }
+            });
+            
+        } catch (error) {
+            onLoading(false);
+            console.log(error);
+        }
+    };
+
     const [T1, setT1] = useState(false)
     const [T2, setT2] = useState(false)
     const [T3, setT3] = useState(false)
@@ -121,14 +174,32 @@ export default function Home() {
             </TouchableOpacity>
         </View>
 
-        <View style={[style.inputContainer,{backgroundColor:theme.input,marginTop:30,borderColor:theme.border}]}>
-            <Icon name="search" size={20} color={Colors.disable}/>  
-                <TextInput placeholder='Search...'
+        <TouchableOpacity style={[style.inputContainer,{backgroundColor:theme.input,marginTop:30,borderColor:theme.border}]} activeOpacity={0.9} onPress={() => navigation.navigate('Resultlist')}>
+            <Icon name="search" size={20} color={Colors.disable} style={{ marginRight: 10 }} />  
+            <Text style={{color:Colors.disable}}>Search...</Text>
+                {/* <TextInput placeholder='Search...'
                     selectionColor={Colors.primary}
                     placeholderTextColor={Colors.disable}
-                    style={{flex:1,color:theme.txt,fontFamily:'Urbanist-Regular'}}/>
-                <Image source={require('../../assets/image/Filter.png')}
-                style={{width:width/19,height:height/35,alignSelf:'center'}}></Image>
+                    style={{flex:1,color:theme.txt,fontFamily:'Urbanist-Regular'}}/> */}
+        </TouchableOpacity>
+
+        <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center',marginTop:30}}>
+            <View style={{ width: '50%' }}>
+                <Text style={[style.subtitle,{color:theme.txt}]}>Seeing 🔥 Events in</Text>
+            </View>
+            <View style={{ width: '50%' }}>
+                <DropDownPicker
+                    open={open}
+                    value={value}
+                    items={items}
+                    setOpen={setOpen}
+                    setValue={setValue}
+                    setItems={setItems}
+                    onSelectItem={(item) => getNewCountryEvents(item)}
+                    placeholder="Select a country"
+                    style={{ borderColor: '#9E9E9E' }}
+                />
+            </View>
         </View>
 
         <ScrollView showsVerticalScrollIndicator={false} style={{marginTop:10}} nestedScrollEnabled={true}>
@@ -186,13 +257,6 @@ export default function Home() {
                 </View>
             ) : (
                 <>
-                    <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center',marginVertical:10,}}>
-                        <Text style={[style.subtitle,{color:theme.txt}]}>Popular Events 🔥</Text>
-                        {/* <TouchableOpacity onPress={() => navigation.navigate('Resultlist')}>
-                        <Text style={[style.b16,{color:Colors.primary}]}>See All</Text>
-                        </TouchableOpacity> */}
-                    </View>
-
                     <ScrollView horizontal showsHorizontalScrollIndicator={false} nestedScrollEnabled={true} style={{ marginVertical: 20 }}>
                         <View style={{ flexDirection: 'row' }}>
                             <TouchableOpacity onPress={()=>setT1(!T1)}
@@ -226,15 +290,16 @@ export default function Home() {
                                             <View style={[style.shadow,{padding:10,backgroundColor:theme.borderbg,borderRadius:15, flex: 1}]}>
                                                 <ImageBackground source={{ uri: item.image[0] }}
                                                 resizeMode='stretch'
+                                                imageStyle={{ borderRadius: 20}}
                                                 style={{height: height/6}}></ImageBackground>
                                                 <Text style={[style.b18,{color:theme.txt,marginTop:5}]}>{item.eventName}</Text>
                                                 <Text style={[style.r12,{color:Colors.primary,marginVertical:5}]}>{moment.utc(item.eventDate).local().format('MMM DD, YYYY')}</Text>
                                                 <View style={{flexDirection:'row',alignItems:'center',}}>
                                                     <Icon name='location' size={20} color={Colors.primary}></Icon>
                                                     <Text style={[style.r12,{color:theme.disable2,flex:1,marginHorizontal:10,}]}>{item.location ? (item.location.length > 10 ? `${item.location.substring(0, 10)}...` : item.location) : 'No Location'}</Text>
-                                                    <TouchableOpacity>
-                                                    <Icon name='heart-outline' size={20} color={Colors.primary}></Icon>
-                                                    </TouchableOpacity>
+                                                    <View>
+                                                    <Icon name='list-circle-outline' size={20} color={Colors.primary}></Icon>
+                                                    </View>
                                                 </View>
                                             </View>
                                         </TouchableOpacity>

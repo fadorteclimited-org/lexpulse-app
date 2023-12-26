@@ -47,25 +47,20 @@ export default function Invited() {
                     }
                 />
                 <ScrollView showsVerticalScrollIndicator={false}>
-
-                    <View style={{ marginTop: 20, flexDirection: 'row', alignItems: 'center' }}>
-                        <Avatar.Image source={require('../../assets/image/s1.png')} style={{ backgroundColor: theme.bg }} size={60} />
-                        <View style={{ marginLeft: 10 }}>
-                            <Text style={[style.b18, { color: theme.txt, }]}>Lauralee Quintero</Text>
-                            <Text style={[style.b14, { color: theme.disable2, marginTop: 5 }]}>+1-300-555-0135</Text>
-                        </View>
-                        <View style={{ flex: 1, alignItems: 'flex-end' }}>
-                            <TouchableOpacity onPress={() => setT1(!T1)}
-                                style={T1 ? [style.following, { backgroundColor: theme.bg }] : style.follow}>
-                                {T1 ?
-                                    <Text style={[style.b14, { color: Colors.primary }]}>Invited</Text> :
-                                    <Text style={[style.b14, { color: Colors.secondary }]}>Invite</Text>
-                                }
-                            </TouchableOpacity>
-                        </View>
+                    <View style={{ marginTop: 20, alignItems: 'center' }}>
+                        <Image source={require('../../assets/image/share.png')}
+                            resizeMode='stretch'
+                            style={{ width: width, height: height / 3.5 }}></Image>
                     </View>
 
                     <View style={{ marginTop: 20, flexDirection: 'row', alignItems: 'center' }}>
+                        <View style={{ marginLeft: 10 }}>
+                            <Text style={[style.b18, { color: theme.txt, }]}>Share your link</Text>
+                            <Text style={[style.b14, { color: theme.disable2, marginTop: 5 }]}>Share your link or referral code and get 10 points everytime someone signs up. 😊</Text>
+                        </View>
+                    </View>
+
+                    {/* <View style={{ marginTop: 20, flexDirection: 'row', alignItems: 'center' }}>
                         <Avatar.Image source={require('../../assets/image/s2.png')} style={{ backgroundColor: theme.bg }} size={60} />
                         <View style={{ marginLeft: 10 }}>
                             <Text style={[style.b18, { color: theme.txt, }]}>Annabel Rohan</Text>
@@ -216,7 +211,7 @@ export default function Invited() {
                                 }
                             </TouchableOpacity>
                         </View>
-                    </View>
+                    </View> */}
 
                 </ScrollView>
             </View>

@@ -269,7 +269,7 @@ export default function Resultlist() {
                         </View>
                     </View>}
                     // titleStyle={[style.apptitle, { color: theme.txt }]}
-                    leading={<TouchableOpacity onPress={() => navigation.navigate('BottomNavigator')}>
+                    leading={<TouchableOpacity onPress={() => navigation.goBack()}>
                         <Icon name="arrow-back"
                             color={theme.txt} size={30}
                         />
