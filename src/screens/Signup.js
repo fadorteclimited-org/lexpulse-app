@@ -32,50 +32,13 @@ export default function Signup() {
 
     const signup = () => {
       onLoading(true);
-
-      try {
-        var config = {
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        };
-    
-        var data = {
-          "email": email,
-          "password": password,
-          "userType": "attendee"
-        };
-        
-        var url = ENDPOINTS.signup;
-    
-        axios.post(url, data, config)
-        .then(async (res) => {
-          onLoading(false);
-          const jsonValue = JSON.stringify(res.data);
-
-          await AsyncStorage.setItem('userDetails', jsonValue);
-          navigation.navigate('Profilefill');
-        })
-        .catch(error => {
-          console.log(error);
-          
-          if (error.response) {
-            onLoading(false);
-            onError(error.response.data.msg);
-          } else if (error.request) {
-            console.log(error.request);
-            onLoading(false);
-            onError('Problem signing in. Please try later!');
-          } else {
-            onLoading(false);
-            onError('Problem signing in. Please try later!');
-          }
-        });
-        
-      } catch (error) {
+      if(email === '' || password === '') {
+        onError('Please enter all fields');
         onLoading(false);
-        console.log(error);
+        return;
       }
+
+      navigation.navigate('Profilefill', { email: email, password: password });
     };
 
   return (
@@ -184,11 +147,11 @@ export default function Signup() {
 
         
         <View style={{flexDirection:'row',alignItems:'center', justifyContent:'space-evenly'}}>
-          <TouchableOpacity style={[style.btnoutline,{backgroundColor:theme.borderbg,borderColor:theme.border}]}>
+          {/* <TouchableOpacity style={[style.btnoutline,{backgroundColor:theme.borderbg,borderColor:theme.border}]}>
             <Image source={require('../../assets/image/Fb.png')}
             resizeMode='stretch'
             style={{height:height/25,width:width/11}}></Image>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
           <TouchableOpacity style={[style.btnoutline,{backgroundColor:theme.borderbg,borderColor:theme.border}]}>
             <Image source={require('../../assets/image/Google.png')}
             resizeMode='stretch'
@@ -202,7 +165,7 @@ export default function Signup() {
         </View>
 
         <View style={{flexDirection:'row',justifyContent:'center',paddingTop:30,marginBottom:10}}>
-            <Text style={[style.r14,{color:theme.inputtxt}]}>Don't have an account?</Text>
+            <Text style={[style.r14,{color:theme.inputtxt}]}>Have an account?</Text>
             <TouchableOpacity onPress={()=>navigation.navigate('Login')}>
                 <Text style={[style.b14,{color:Colors.primary,}]}> Sign In</Text>
             </TouchableOpacity>

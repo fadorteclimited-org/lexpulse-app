@@ -11,10 +11,11 @@ import  Icon  from 'react-native-vector-icons/Ionicons';
 import { ENDPOINTS } from '../api/constants';
 import axios from 'axios';
 
-const width =Dimensions.get('screen').width
+const width = Dimensions.get('screen').width
 const height = Dimensions.get('screen').height
 
-export default function Profilefill() {
+export default function Profilefill({ route }) {
+  const { email, password } = route.params;
 
     const theme = useContext(themeContext);
     const navigation=useNavigation();
@@ -27,25 +28,25 @@ export default function Profilefill() {
 
     const fillProfile = async () => {
         onLoading(true);
-  
+
         try {
           var config = {
             headers: {
               'Content-Type': 'application/json'
             }
           };
-
-          const jsonValue = await AsyncStorage.getItem('userDetails');
-          const parsedValue = JSON.parse(jsonValue);
       
           var data = {
             "firstName": firstName,
-            "lastName": lastName
+            "lastName": lastName,
+            "email": email,
+            "password": password,
+            "userType": "attendee"
           };
           
-          var url = `${ENDPOINTS.signup}/${parsedValue.user.id}`;
+          var url = ENDPOINTS.signup;
       
-          axios.patch(url, data, config)
+          axios.post(url, data, config)
           .then(async (res) => {
             onLoading(false);
             const jsonValue = JSON.stringify(res.data);
@@ -101,9 +102,9 @@ export default function Profilefill() {
             <View>
                 <Avatar image={require('../../assets/image/user.png')}
                 size={100} style={{alignSelf:'center', marginVertical: 20, borderColor: '#584CF4', borderWidth: 2}}></Avatar>
-                {/* <Image source={require('../../assets/image/Exclude.png')}
+                <Image source={require('../../assets/image/Exclude.png')}
                resizeMode='stretch'
-               style={{height:height/32,width:width/15,position:'absolute',bottom:0,right:125}}></Image> */}
+               style={{height:height/32,width:width/15,position:'absolute',bottom:0,right:125}}></Image>
             </View>
 
             <View style={[style.txtinput,{borderColor: isFocused === 'First Name' ? Colors.primary : theme.input,backgroundColor: isFocused==='First Name' ?'#584CF410': theme.input,marginTop:20}]}>
