@@ -73,5 +73,9 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Permission is required to access your photos to help you upload content</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Permission is required to access your camera to help update your profile</string>
 </dict>
 </plist>

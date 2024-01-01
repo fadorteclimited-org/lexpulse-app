@@ -47,7 +47,6 @@ export default function Login() {
     
         axios.post(url, data, config)
         .then(async (res) => {
-          console.log(res.data)
           onLoading(false);
           const jsonValue = JSON.stringify(res.data);
 
@@ -203,10 +202,17 @@ export default function Login() {
 
         <View style={{flexDirection:'row',justifyContent:'center',paddingTop:30,marginBottom:10}}>
             <Text style={[style.r14,{color:theme.inputtxt}]}>Don't have an account?</Text>
-            <TouchableOpacity onPress={()=>navigation.navigate('Signup')}>
+            <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
                 <Text style={[style.b14,{color:Colors.primary,}]}> Sign up</Text>
             </TouchableOpacity>
           </View>
+
+          {/* <View style={{flexDirection:'row',justifyContent:'center',paddingTop:30,marginBottom:10}}>
+            <Text style={[style.r14,{color:theme.inputtxt}]}>Check the OTP screen</Text>
+            <TouchableOpacity onPress={()=>navigation.navigate('NewPass', { email: 'kayosarp@gmail.com' })}>
+                <Text style={[style.b14,{color:Colors.primary,}]}> OTP screen</Text>
+            </TouchableOpacity>
+          </View> */}
 
         </ScrollView>
     </View>

@@ -1,5 +1,5 @@
 import { ActivityIndicator, View, Text, TextInput, ScrollView, TouchableOpacity, ImageBackground, Image, Dimensions, KeyboardAvoidingView, Modal } from 'react-native'
-import React, { useState, useContext } from 'react'
+import React, { useState, useContext, useEffect } from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Colors } from '../theme/color'
 import style from '../theme/style'
@@ -22,16 +22,22 @@ const width = Dimensions.get('screen').width
 const height = Dimensions.get('screen').height
 
 export default function ReviewSummary({ route }) {
-    const { itemObj, ticketNumber } = route.params;
+    const { itemObj, ticketQuantities, totalPrice } = route.params;
 
     const theme = useContext(themeContext);
     const navigation = useNavigation();
     
     const [item, setItem] = useState(itemObj);
-    const [ticketsPurchased, setTicketsPurchased] = useState(ticketNumber);
+    const [ticketsPurchased, setTicketsPurchased] = useState(ticketQuantities);
 
     const [loading, onLoading] = React.useState(false);
     const [error, onError] = React.useState('');
+
+    console.log(itemObj)
+    console.log('£££££££')
+    console.log(ticketQuantities)
+    console.log('£££££££')
+    console.log(totalPrice)
 
     const saveTicket = async () => {
         const jsonValue = await AsyncStorage.getItem('userDetails');
@@ -49,8 +55,8 @@ export default function ReviewSummary({ route }) {
             var data = {
                 "eventId": item._id,
                 "attendeeId": parsedValue.user.id,
-                "numberOfTickets": ticketsPurchased,
-                "totalPrice": Number(ticketsPurchased) * Number(item.price),
+                "paymentMethod": "none",
+                "ticketInfo": ticketsPurchased,
                 "status": "booked"
             };
             
@@ -139,35 +145,22 @@ export default function ReviewSummary({ route }) {
 
                     <View style={{ paddingVertical: 15, paddingHorizontal: 5 }}>
                         <View style={[style.shadow, { backgroundColor: theme.borderbg, borderRadius: 15, padding: 15 }]}>
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                                <Text style={[style.b14, { color: theme.disable2 }]}>{`${ticketsPurchased} Ticket(s)`}</Text>
-                                <Text style={[style.b16, { color: theme.disable1 }]}>{item.price === 0 ? (`Free Event`) : (`${item.currency} ${Number(item.price) * ticketNumber}`)}</Text>
-                            </View>
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
-                                <Text style={[style.b14, { color: theme.disable2 }]}>Transaction Charge</Text>
-                                <Text style={[style.b16, { color: theme.disable1 }]}>0.00</Text>
-                            </View>
+                            {
+                                ticketsPurchased.map((ticketItem, index) => (
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 }} key={index}>
+                                        <Text style={[style.b14, { color: theme.disable2 }]}>{`${ticketItem.ticketType} Ticket(s)`}</Text>
+                                        <Text style={[style.b16, { color: theme.disable1 }]}>{item.price === 0 ? (`Free Event`) : (`${ticketItem.numberOfTickets}`)}</Text>
+                                    </View>
+                                ))
+                            }
+                            
                             <View style={[style.divider, { marginVertical: 10, backgroundColor: theme.border }]}></View>
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                                 <Text style={[style.b14, { color: theme.disable2 }]}>Total</Text>
-                                <Text style={[style.b16, { color: theme.disable1 }]}>{`${item.currency} ${Number(item.price) * ticketNumber}`}</Text>
+                                <Text style={[style.b16, { color: theme.disable1 }]}>{`${item.currency} ${totalPrice}`}</Text>
                             </View>
                         </View>
                     </View>
-
-                    {/* <View style={{ padding: 10 }}>
-                        <View style={[style.shadow, { backgroundColor: theme.borderbg, borderRadius: 15, padding: 15,flexDirection:'row' ,alignItems:'center'}]}>
-                            <Image source={require('../../assets/image/master.png')}
-                                style={{ resizeMode: 'stretch', height: height / 30, width: width / 10.5 }}
-                            />
-                            <Text style={[style.b18, { color: theme.txt, marginHorizontal: 10 }]}>•••• •••• •••• •••• 4679</Text>
-                            <View style={{flex:1,alignItems:'flex-end'}}>
-                                <TouchableOpacity>
-                                    <Text style={[style.b16,{color:Colors.primary}]}>Change</Text>
-                                </TouchableOpacity>
-                            </View>
-                        </View>
-                    </View> */}
 
                     <View style={{ marginVertical: 20 }}>
                         {

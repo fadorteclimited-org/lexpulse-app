@@ -1,4 +1,4 @@
-import { ActivityIndicator, View, Text, SafeAreaView, TextInput, StatusBar,TouchableOpacity,Image,ScrollView,Dimensions,KeyboardAvoidingView} from 'react-native'
+import { ActivityIndicator, View, Text, SafeAreaView, TextInput, StatusBar,TouchableOpacity,Image,ScrollView,Dimensions,KeyboardAvoidingView, Platform} from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React,{useState,useContext} from 'react'
 import theme from '../theme/theme';
@@ -10,12 +10,15 @@ import { AppBar, Avatar} from '@react-native-material/core';
 import  Icon  from 'react-native-vector-icons/Ionicons';
 import { ENDPOINTS } from '../api/constants';
 import axios from 'axios';
+import DropDownPicker from 'react-native-dropdown-picker';
+import { launchImageLibrary } from 'react-native-image-picker';
 
 const width = Dimensions.get('screen').width
 const height = Dimensions.get('screen').height
 
 export default function Profilefill({ route }) {
-  const { email, password } = route.params;
+    const { email, password, country } = route.params;
+    const [photo, setPhoto] = React.useState(null);
 
     const theme = useContext(themeContext);
     const navigation=useNavigation();
@@ -26,23 +29,69 @@ export default function Profilefill({ route }) {
     const [firstName, onChangeFirstName] = React.useState('');
     const [lastName, onChangeLastName] = React.useState('');
 
+    const [openGender, setOpenGender] = useState(false);
+    const [valueGender, setValueGender] = useState(null);
+    const [itemsGender, setItemsGender] = useState([
+        {label: 'Male', value: 'Male'},
+        {label: 'Female', value: 'Female'},
+        {label: 'Other', value: 'Other'}
+    ]);
+
+    const handleChoosePhoto = () => {
+      launchImageLibrary({ noData: true }, (response) => {
+        console.log(response);
+        if (response.assets) {
+          setPhoto(response);
+        }
+      });
+    };
+
+    const createFormData = (photo, body = {}) => {
+      const data = new FormData();
+    
+      data.append('image', {
+        name: photo[0].fileName,
+        type: photo[0].type,
+        uri: Platform.OS === 'ios' ? photo[0].uri.replace('file://', '') : photo[0].uri,
+      });
+    
+      Object.keys(body).forEach((key) => {
+        data.append(key, body[key]);
+      });
+    
+      return data;
+    };
+
     const fillProfile = async () => {
         onLoading(true);
+
+        if(photo === null || 
+          firstName === '' || 
+          lastName === '' || 
+          valueGender === null) {
+          onError('Please make sure all fields are filled out and update your profile pic.');
+          onLoading(false);
+          return;
+        }
 
         try {
           var config = {
             headers: {
-              'Content-Type': 'application/json'
+              'Content-Type': 'multipart/form-data'
             }
           };
       
-          var data = {
+          var dataItems = {
             "firstName": firstName,
             "lastName": lastName,
             "email": email,
+            "country": country,
+            "gender": valueGender,
             "password": password,
             "userType": "attendee"
           };
+
+          var data = createFormData(photo.assets, dataItems);
           
           var url = ENDPOINTS.signup;
       
@@ -52,7 +101,7 @@ export default function Profilefill({ route }) {
             const jsonValue = JSON.stringify(res.data);
 
             await AsyncStorage.setItem('userDetails', jsonValue);
-            navigation.navigate('BottomNavigator');
+            navigation.navigate('OtpVerification', { email: email, fromRoute: 'profile' });
           })
           .catch(error => {
             console.log(error);
@@ -89,7 +138,7 @@ export default function Profilefill({ route }) {
             title='Fill Your Profile'
             titleStyle={[style.apptitle,{color:theme.txt}]}
             elevation={0}
-            leading={ <TouchableOpacity onPress={()=>navigation.navigate('Signup')}>
+            leading={ <TouchableOpacity onPress={()=>navigation.goBack()}>
             <Icon name="arrow-back"  
             // style={{backgroundColor:Colors.secondary,}}  
             color={theme.txt} size={30}
@@ -97,15 +146,22 @@ export default function Profilefill({ route }) {
             </TouchableOpacity>
         }/>
 
-        <ScrollView showsVerticalScrollIndicator={false}>
+        <View>
 
-            <View>
-                <Avatar image={require('../../assets/image/user.png')}
-                size={100} style={{alignSelf:'center', marginVertical: 20, borderColor: '#584CF4', borderWidth: 2}}></Avatar>
+            <TouchableOpacity activeOpacity={0.9} onPress={() => handleChoosePhoto()}>
+              {
+                photo !== null ? (
+                  <Avatar image={{ uri: photo?.assets[0]?.uri }}
+                    size={100} style={{alignSelf:'center', marginVertical: 20}}></Avatar>
+                ) : (
+                  <Avatar image={require('../../assets/image/user.png')}
+                    size={100} style={{alignSelf:'center', marginVertical: 20}}></Avatar>
+                )
+              }
                 <Image source={require('../../assets/image/Exclude.png')}
                resizeMode='stretch'
-               style={{height:height/32,width:width/15,position:'absolute',bottom:0,right:125}}></Image>
-            </View>
+               style={{height:height/32,width:width/15,position:'absolute',bottom:15,right:130}}></Image>
+            </TouchableOpacity>
 
             <View style={[style.txtinput,{borderColor: isFocused === 'First Name' ? Colors.primary : theme.input,backgroundColor: isFocused==='First Name' ?'#584CF410': theme.input,marginTop:20}]}>
             <TextInput placeholder='First Name'
@@ -127,6 +183,19 @@ export default function Profilefill({ route }) {
                     placeholderTextColor={Colors.disable}
                     style={[{paddingHorizontal:10,color:theme.txt,fontFamily:'Urbanist-Regular',flex:1}]}
             />
+            </View>
+
+            <View style={[style.txtinput,{borderColor: isFocused === 'Gender' ? Colors.primary : theme.input,backgroundColor: isFocused ==='Gender' ?'#584CF410': theme.input,marginTop:20}]}>
+                <DropDownPicker
+                    open={openGender}
+                    value={valueGender}
+                    items={itemsGender}
+                    setOpen={setOpenGender}
+                    setValue={setValueGender}
+                    setItems={setItemsGender}
+                    placeholder="Select a Gender"
+                    style={{ borderColor: isFocused === 'Gender' ? Colors.primary : theme.input, backgroundColor: isFocused ==='Gender' ?'#584CF410': theme.input }}
+                />
             </View>
 
             {/* <View style={[style.inputContainer,{borderColor: isFocused==='Date of Birth' ? Colors.primary : theme.input,borderWidth:1,backgroundColor: isFocused==='Date of Birth' ?'#584CF410': theme.input,marginTop:20}]}>
@@ -177,20 +246,20 @@ export default function Profilefill({ route }) {
             }
             {
                 loading ? (
-                    <View style={{marginTop:40,marginBottom:20}}>
+                    <View style={{marginTop:100,marginBottom:20}}>
                         <TouchableOpacity style={style.btn}>
                             <ActivityIndicator size="small" color="#ffffff" />
                         </TouchableOpacity>
                     </View>
                 ) : (
-                    <View style={{marginTop:40,marginBottom:20}}>
+                    <View style={{marginTop:130,marginBottom:20}}>
                         <TouchableOpacity onPress={() => fillProfile()} style={style.btn}>
                             <Text style={style.btntxt}>Continue</Text>
                         </TouchableOpacity>
                     </View>
                 )
             }
-        </ScrollView>
+        </View>
     </View>
     </KeyboardAvoidingView>
     </SafeAreaView>

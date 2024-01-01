@@ -1,5 +1,5 @@
 import { ActivityIndicator, View, Text, Dimensions, SafeAreaView, ImageBackground, TextInput, FlatList, StatusBar, TouchableOpacity, Image, ScrollView, Modal } from 'react-native'
-import React, { useState, useContext } from 'react'
+import React, { useState, useContext, useEffect } from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import theme from '../theme/theme';
 import themeContext from '../theme/themeContex';
@@ -22,13 +22,68 @@ export default function EventDetail({ route }) {
 
     const theme = useContext(themeContext);
     const navigation = useNavigation();
-    
+
     const [loading, onLoading] = useState(false);
     const [error, onError] = useState('');
     const [item, setItem] = useState(itemObj);
-    const [isvisible, setIsVisible] = useState(false)
-    const [isVisibleSuccess, setIsVisibleSuccess] = useState(false)
-    const [isVisibleFailed, setIsVisibleFailed] = useState(false)
+    const [isvisible, setIsVisible] = useState(false);
+    const [isVisibleSuccess, setIsVisibleSuccess] = useState(false);
+    const [isVisibleFailed, setIsVisibleFailed] = useState(false);
+    const [singleEvent, setSingleEvent] = useState({});
+
+    const fetchData = async () => {
+        const jsonValue = await AsyncStorage.getItem('userDetails');
+        const parsedValue = JSON.parse(jsonValue);
+        
+        try {
+            var config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${parsedValue.token}`
+                }
+            };
+            
+            var url = `${ENDPOINTS.events}/${item._id}`;
+        
+            axios.get(url, config)
+            .then((res) => {
+                onLoading(false);
+                setSingleEvent(res.data.data);
+            })
+            .catch(error => {
+                console.log(error);
+                
+                if (error.response) {
+                    onLoading(false);
+                    onError(error.response.data.msg);
+                } else if (error.request) {
+                    console.log(error.request);
+                    onLoading(false);
+                    onError('Problem signing in. Please try later!');
+                } else {
+                    onLoading(false);
+                    onError('Problem signing in. Please try later!');
+                }
+            });
+            
+        } catch (error) {
+            onLoading(false);
+            console.log(error);
+        }
+    };
+
+    useEffect(() => {
+        const fetchDataAndHandleErrors = async () => {
+            try {
+                await fetchData();
+            } catch (error) {
+                console.log('Error in fetchData:', error);
+                // Handle errors here if needed
+            }
+        };
+    
+        fetchDataAndHandleErrors();
+    }, []);
 
     const saveEvent = async () => {
         onLoading(true);
@@ -198,7 +253,7 @@ export default function EventDetail({ route }) {
                             resizeMode='stretch'
                             style={{ height: height / 27, width: width / 3.5, marginHorizontal: 10 }}>
                         </Image>
-                        <Text style={[style.r16, { color: theme.disable1, marginRight: 5 }]}>1,000+ going</Text>
+                        <Text style={[style.r16, { color: theme.disable1, marginRight: 5 }]}>{singleEvent ? (singleEvent.tickets > 10 ? (`${singleEvent.tickets}+`) : (`50+`)) : (`50+`)} going</Text>
                         {/* <Icon name='arrow-forward' size={25} color={theme.txt}></Icon> */}
                     </View>
 
@@ -234,22 +289,35 @@ export default function EventDetail({ route }) {
                         <Avatar image={require('../../assets/image/b3.png')}
                             style={{ backgroundColor: 'transparent' }} size={65}></Avatar>
                         <View style={{ marginHorizontal: 10 }}>
-                            <Text style={[style.b18, { color: theme.txt }]}>{item.price === 0 ? (`Free`) : (`${item.currency} ${item.price}`)}</Text>
-                            <Text style={[style.r14, { color: theme.txt, marginVertical: 7 }]}>Ticket price</Text>
+                            {
+                                item?.ticketInfo?.map((ticketItem, index) => (
+                                    <View style={{ marginBottom: 20 }}>
+                                        <Text style={[style.b18, { color: theme.txt }]}>{item.price === 0 ? (`Free`) : (`${item.currency} ${ticketItem.price}`)}</Text>
+                                        <Text style={[style.r14, { color: theme.txt, marginVertical: 7 }]}>{ticketItem.ticketType}</Text>
+                                    </View>
+                                ))
+                            }
                         </View>
                     </View>
 
                     <View style={[style.divider1, { backgroundColor: theme.border }]}></View>
-                    <TouchableOpacity onPress={() => navigation.navigate('Organizer')}>
+                    <TouchableOpacity onPress={() => navigation.navigate('Organizer',{ organizerId: item.eventHostId._id })}>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                            <Avatar image={require('../../assets/image/p6.png')}
-                                style={{ backgroundColor: 'transparent' }} size={65}></Avatar>
+                            {
+                                item.eventHostId.image.length > 0 ? (
+                                    <Avatar image={{ uri: item.eventHostId.image[0] }}
+                                        style={{ backgroundColor: 'transparent' }} size={65}></Avatar>
+                                ) : (
+                                    <Avatar image={require('../../assets/image/p6.png')}
+                                        style={{ backgroundColor: 'transparent' }} size={65}></Avatar>
+                                )
+                            }
                             <View style={{ flex: 1, marginLeft: 10 }}>
                                 <Text style={[style.b18, { color: theme.txt }]}>{`${item.eventHostId?.firstName} ${item.eventHostId.lastName}`}</Text>
-                                <Text style={[style.r14, { color: theme.disable2 }]}>Organizer</Text>
+                                <Text style={[style.r14, { color: theme.disable2 }]}>Event Host</Text>
                             </View>
                             <View style={{ backgroundColor: Colors.primary, paddingHorizontal: 15, paddingVertical: 5, borderRadius: 20 }}>
-                                <Text style={[style.r14, { color: Colors.secondary, }]}>Follow</Text>
+                                <Text style={[style.r14, { color: Colors.secondary, }]}>View</Text>
                             </View>
                         </View>
                     </TouchableOpacity>
@@ -258,7 +326,7 @@ export default function EventDetail({ route }) {
 
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 30, marginBottom: 10 }}>
                         <Text style={[style.subtitle, { color: theme.txt }]}>Gallery</Text>
-                        <TouchableOpacity onPress={() => navigation.navigate('Gallery')}>
+                        <TouchableOpacity onPress={() => navigation.navigate('Gallery', { itemObj: item })}>
                             <Text style={[style.b16, { color: Colors.primary }]}>See All</Text>
                         </TouchableOpacity>
                     </View>

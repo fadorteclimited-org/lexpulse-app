@@ -1,5 +1,6 @@
-import { View, Text, SafeAreaView, TextInput, StatusBar, TouchableOpacity, Image, ScrollView, Dimensions, KeyboardAvoidingView } from 'react-native'
-import React, { useState, useContext } from 'react'
+import { ActivityIndicator, View, Text, SafeAreaView, TextInput, StatusBar, TouchableOpacity, Image, ScrollView, Dimensions, KeyboardAvoidingView } from 'react-native'
+import React, { useState, useContext, useEffect } from 'react'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import theme from '../theme/theme';
 import themeContext from '../theme/themeContex';
 import style from '../theme/style';
@@ -8,6 +9,8 @@ import { useNavigation } from '@react-navigation/native';
 import { AppBar, Avatar } from '@react-native-material/core';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import { ENDPOINTS } from '../api/constants';
+import axios from 'axios';
 import All from './All';
 
 const Tab = createMaterialTopTabNavigator();
@@ -135,68 +138,264 @@ const Musiclist = () =>{
         </SafeAreaView>    
     )
 }
-export default function Organizer() {
+export default function Organizer({ route }) {
+    const { organizerId } = route.params;
 
     const theme = useContext(themeContext);
     const navigation = useNavigation();
+    
+    const [followLoading, onFollowLoading] = useState(false);
+    const [loading, onLoading] = useState(true);
+    const [error, onError] = useState('');
+    const [organizerDetails, setOrganizerDetails] = useState({});
+    const [followers, setFollowers] = useState(0);
+    const [followingStatus, setFollowingStatus] = useState(false);
+
+    const fetchData = async () => {
+        const jsonValue = await AsyncStorage.getItem('userDetails');
+        const parsedValue = JSON.parse(jsonValue);
+        
+        try {
+            var config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${parsedValue.token}`
+                }
+            };
+            
+            var url = `${ENDPOINTS.signup}/${organizerId}`;
+        
+            axios.get(url, config)
+            .then((res) => {
+                onLoading(false);
+                setOrganizerDetails(res.data.data);
+                setFollowers(res.data.data.following.followers.length);
+            })
+            .catch(error => {
+                console.log(error);
+                
+                if (error.response) {
+                    onLoading(false);
+                    onError(error.response.data.msg);
+                } else if (error.request) {
+                    console.log(error.request);
+                    onLoading(false);
+                    onError('Problem signing in. Please try later!');
+                } else {
+                    onLoading(false);
+                    onError('Problem signing in. Please try later!');
+                }
+            });
+            
+        } catch (error) {
+            onLoading(false);
+            console.log(error);
+        }
+    };
+
+    useEffect(() => {
+        const fetchDataAndHandleErrors = async () => {
+            try {
+                await fetchData();
+            } catch (error) {
+                console.log('Error in fetchData:', error);
+                // Handle errors here if needed
+            }
+        };
+    
+        fetchDataAndHandleErrors();
+    }, []);
+
+    const follow = async () => {
+        const jsonValue = await AsyncStorage.getItem('userDetails');
+        const parsedValue = JSON.parse(jsonValue);
+        onFollowLoading(true);
+
+        try {
+            var config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${parsedValue.token}`
+                }
+            };
+        
+            var data = {
+                "followerId": parsedValue.user.id
+            };
+            
+            var url = `${ENDPOINTS.following}/${organizerDetails.following._id}`;
+        
+            axios.patch(url, data, config)
+            .then((res) => {
+                onFollowLoading(false);
+                setFollowingStatus(true);
+                setFollowers(Number(followers) + 1);
+            })
+            .catch(error => {
+            
+            if (error.response) {
+                console.log(error.response);
+                onFollowLoading(false);
+                onError(error.response.data.error);
+            } else if (error.request) {
+                console.log(error.request);
+                onFollowLoading(false);
+                onError('Problem signing in. Please try later!');
+            } else {
+                console.log(error);
+                onFollowLoading(false);
+                onError('Problem signing in. Please try later!');
+            }
+            });
+            
+        } catch (error) {
+            onLoading(false);
+            console.log(error);
+        }
+    };
+
+    const unFollow = async () => {
+        const jsonValue = await AsyncStorage.getItem('userDetails');
+        const parsedValue = JSON.parse(jsonValue);
+        onFollowLoading(true);
+
+        try {
+            var config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${parsedValue.token}`
+                }
+            };
+        
+            var data = {
+                "followerId": parsedValue.user.id
+            };
+            
+            var url = `${ENDPOINTS.following}/${organizerDetails.following._id}`;
+        
+            axios.patch(url, data, config)
+            .then((res) => {
+                onFollowLoading(false);
+                setFollowingStatus(false);
+                setFollowers(Number(followers) - 1);
+            })
+            .catch(error => {
+            
+            if (error.response) {
+                console.log(error.response);
+                onFollowLoading(false);
+                onError(error.response.data.error);
+            } else if (error.request) {
+                console.log(error.request);
+                onFollowLoading(false);
+                onError('Problem signing in. Please try later!');
+            } else {
+                console.log(error);
+                onFollowLoading(false);
+                onError('Problem signing in. Please try later!');
+            }
+            });
+            
+        } catch (error) {
+            onLoading(false);
+            console.log(error);
+        }
+    };
 
     return (
         <SafeAreaView style={[style.area, { backgroundColor: theme.bg, }]}>
-            <View style={[style.main, { backgroundColor: theme.bg, marginTop: 20 }]}>
-                <AppBar
-                    color={theme.bg}
-                    title='Organizer'
-                    titleStyle={[style.apptitle, { color: theme.txt }]}
-                    elevation={0}
-                    leading={<TouchableOpacity onPress={() => navigation.goBack()}>
-                        <Icon name="arrow-back"
-                            // style={{backgroundColor:Colors.secondary,}}  
-                            color={theme.txt} size={30}
-                        />
-                    </TouchableOpacity>
-                    }
-                    trailing={null} />
-
-                <Avatar image={require('../../assets/image/p6.png')}
-                    style={{ backgroundColor: 'transparent', alignSelf: 'center', marginTop: 20 }} size={90}></Avatar>
-                <Text style={[style.title, { color: theme.txt, textAlign: 'center', marginTop: 10 }]}> World of Music</Text>
-
-                <View style={[style.divider, { backgroundColor: theme.border, marginTop: 20 }]}></View>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-evenly', alignItems: 'center', marginTop: 10 }}>
-                    <View style={{ alignItems: 'center' }}>
-                        <Text style={[style.title, { color: theme.txt }]}>24</Text>
-                        <Text style={[style.r16, { color: theme.disable2 }]}>Events</Text>
+            {
+                loading ? (
+                    <View style={{ width: '100%', height: '100%', paddingTop: '30%' }}>
+                        <ActivityIndicator size="large" color="#584CF4" />
                     </View>
-                    <View style={[style.verticaldivider, { backgroundColor: theme.border }]}></View>
-                    <View style={{ alignItems: 'center' }}>
-                        <Text style={[style.title, { color: theme.txt }]}>967K</Text>
-                        <Text style={[style.r16, { color: theme.disable2 }]}>Followers</Text>
+                ) : (
+                    <View style={[style.main, { backgroundColor: theme.bg, marginTop: 20 }]}>
+                        <AppBar
+                            color={theme.bg}
+                            title='Event Host'
+                            titleStyle={[style.apptitle, { color: theme.txt }]}
+                            elevation={0}
+                            leading={<TouchableOpacity onPress={() => navigation.goBack()}>
+                                <Icon name="arrow-back"
+                                    // style={{backgroundColor:Colors.secondary,}}  
+                                    color={theme.txt} size={30}
+                                />
+                            </TouchableOpacity>
+                            }
+                            trailing={null} />
+                        {
+                            organizerDetails?.user?.image?.length > 0 ? (
+                                <Avatar image={{ uri: organizerDetails?.user?.image[0] }}
+                                    style={{ backgroundColor: 'transparent', alignSelf: 'center', marginTop: 20 }} size={90}></Avatar>
+                            ) : (
+                                <Avatar image={require('../../assets/image/p6.png')}
+                                    style={{ backgroundColor: 'transparent', alignSelf: 'center', marginTop: 20 }} size={90}></Avatar>
+                            )
+                        }
+                        
+                        <Text style={[style.title, { color: theme.txt, textAlign: 'center', marginTop: 10 }]}> {`${organizerDetails?.user?.firstName} ${organizerDetails?.user?.lastName}`}</Text>
+
+                        <View style={[style.divider, { backgroundColor: theme.border, marginTop: 20 }]}></View>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-evenly', alignItems: 'center', marginTop: 10 }}>
+                            {/* <View style={{ alignItems: 'center' }}>
+                                <Text style={[style.title, { color: theme.txt }]}>24</Text>
+                                <Text style={[style.r16, { color: theme.disable2 }]}>Events</Text>
+                            </View>
+                            <View style={[style.verticaldivider, { backgroundColor: theme.border }]}></View> */}
+                            <View style={{ alignItems: 'center' }}>
+                                <Text style={[style.title, { color: theme.txt }]}>{followers}</Text>
+                                <Text style={[style.r16, { color: theme.disable2 }]}>Follower(s)</Text>
+                            </View>
+                            {/* <View style={[style.verticaldivider, { backgroundColor: theme.border }]}></View>
+                            <View style={{ alignItems: 'center' }}>
+                                <Text style={[style.title, { color: theme.txt }]}>20</Text>
+                                <Text style={[style.r16, { color: theme.disable2 }]}>Following</Text>
+                            </View> */}
+                        </View>
+                        <View style={[style.divider, { backgroundColor: theme.border, marginTop: 10 }]}></View>
+
+                        <View style={{ flexDirection: 'row', marginVertical: 20 }}>
+                            {
+                                followLoading ? (
+                                    <TouchableOpacity
+                                        style={[style.btn, { flex: 1, backgroundColor: Colors.primary, flexDirection: 'row', justifyContent: 'center', }]} activeOpacity={0.9}>
+                                        <ActivityIndicator size="small" color="#ffffff" />
+                                    </TouchableOpacity>
+                                ) : (
+                                    <>
+                                    {
+                                        followingStatus ? (
+                                            <TouchableOpacity onPress={() => unFollow()}
+                                                style={[style.btn, { flex: 1, backgroundColor: Colors.secondary, flexDirection: 'row', justifyContent: 'center', borderWidth: 1, borderColor: Colors.primary }]} activeOpacity={0.9}>
+                                                <Icon name='person-remove' color={Colors.primary} size={20}></Icon>
+                                                <Text style={[style.btntxt, { marginLeft: 5, color: Colors.primary }]}>Unfollow</Text>
+                                            </TouchableOpacity>
+                                        ) : (
+                                            <TouchableOpacity onPress={() => follow()}
+                                                style={[style.btn, { flex: 1, backgroundColor: Colors.primary, flexDirection: 'row', justifyContent: 'center', }]} activeOpacity={0.9}>
+                                                <Icon name='person-add' color={Colors.secondary} size={20}></Icon>
+                                                <Text style={[style.btntxt, { marginLeft: 5 }]}>Follow</Text>
+                                            </TouchableOpacity>
+                                        )
+                                    }
+                                    </>
+                                )
+                            }
+                            
+                            {/* <View style={{ margin: 5 }}></View>
+                            <TouchableOpacity onPress={() => navigation.navigate('')}
+                                style={[style.btn, { flex: 1, flexDirection: 'row', justifyContent: 'center', backgroundColor: theme.borderbg, borderColor: Colors.primary, borderWidth: 1 }]}>
+                                <Icon name='chatbubble-ellipses-sharp' color={Colors.primary} size={20}></Icon>
+                                <Text style={[style.btntxt, { color: Colors.primary, marginLeft: 5 }]}>Message</Text>
+                            </TouchableOpacity> */}
+                        </View>
+                        <View style={{ marginTop: -10 }}></View>
+                        {/* <Tabs></Tabs> */}
+
                     </View>
-                    {/* <View style={[style.verticaldivider, { backgroundColor: theme.border }]}></View>
-                    <View style={{ alignItems: 'center' }}>
-                        <Text style={[style.title, { color: theme.txt }]}>20</Text>
-                        <Text style={[style.r16, { color: theme.disable2 }]}>Following</Text>
-                    </View> */}
-                </View>
-                <View style={[style.divider, { backgroundColor: theme.border, marginTop: 10 }]}></View>
-
-                <View style={{ flexDirection: 'row', marginVertical: 20 }}>
-                    <TouchableOpacity onPress={() => navigation.navigate('')}
-                        style={[style.btn, { flex: 1, backgroundColor: Colors.primary, flexDirection: 'row', justifyContent: 'center', }]}>
-                        <Icon name='person-add' color={Colors.secondary} size={20}></Icon>
-                        <Text style={[style.btntxt, { marginLeft: 5 }]}>Follow</Text>
-                    </TouchableOpacity>
-                    {/* <View style={{ margin: 5 }}></View>
-                    <TouchableOpacity onPress={() => navigation.navigate('')}
-                        style={[style.btn, { flex: 1, flexDirection: 'row', justifyContent: 'center', backgroundColor: theme.borderbg, borderColor: Colors.primary, borderWidth: 1 }]}>
-                        <Icon name='chatbubble-ellipses-sharp' color={Colors.primary} size={20}></Icon>
-                        <Text style={[style.btntxt, { color: Colors.primary, marginLeft: 5 }]}>Message</Text>
-                    </TouchableOpacity> */}
-                </View>
-                <View style={{ marginTop: -10 }}></View>
-                <Tabs></Tabs>
-
-            </View>
+                    )
+                }
         </SafeAreaView>
     )
 }

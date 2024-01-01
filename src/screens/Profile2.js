@@ -10,21 +10,49 @@ import { AppBar, Avatar} from '@react-native-material/core';
 import  Icon  from 'react-native-vector-icons/Ionicons';
 import { ENDPOINTS } from '../api/constants';
 import axios from 'axios';
+import { launchImageLibrary } from 'react-native-image-picker';
 
 const width = Dimensions.get('screen').width
 const height = Dimensions.get('screen').height
 
-export default function Profile2() {
+export default function Profile2({ route }) {
+    const { profile } = route.params;
 
     const theme = useContext(themeContext);
     const navigation=useNavigation();
     const [isFocused, setIsFocused] = useState(false)
+    const [photo, setPhoto] = React.useState(null);
 
     const [loading, onLoading] = React.useState(false);
     const [error, onError] = React.useState('');
-    const [firstName, onChangeFirstName] = React.useState('');
-    const [lastName, onChangeLastName] = React.useState('');
+    const [firstName, onChangeFirstName] = React.useState(profile.user.firstName);
+    const [lastName, onChangeLastName] = React.useState(profile.user.firstName);
     const [isvisible, setIsVisible] = useState(false)
+
+    const handleChoosePhoto = () => {
+      launchImageLibrary({ noData: true }, (response) => {
+        console.log(response);
+        if (response.assets) {
+          setPhoto(response);
+        }
+      });
+    };
+
+    const createFormData = (photo, body = {}) => {
+      const data = new FormData();
+    
+      data.append('image', {
+        name: photo[0].fileName,
+        type: photo[0].type,
+        uri: Platform.OS === 'ios' ? photo[0].uri.replace('file://', '') : photo[0].uri,
+      });
+    
+      Object.keys(body).forEach((key) => {
+        data.append(key, body[key]);
+      });
+    
+      return data;
+    };
 
     const fillProfile = async () => {
         onLoading(true);
@@ -41,15 +69,17 @@ export default function Profile2() {
 
           var config = {
             headers: {
-              'Content-Type': 'application/json',
+              'Content-Type': 'multipart/form-data',
               'Authorization': `Bearer ${parsedValue.token}`
             }
           };
       
-          var data = {
+          var dataItems = {
             "firstName": firstName,
             "lastName": lastName
           };
+
+          var data = createFormData(photo.assets, dataItems);
           
           var url = `${ENDPOINTS.signup}/${parsedValue.user.id}`;
       
@@ -94,7 +124,7 @@ export default function Profile2() {
             title='Fill Your Profile'
             titleStyle={[style.apptitle,{color:theme.txt}]}
             elevation={0}
-            leading={ <TouchableOpacity onPress={()=>navigation.goBack()}>
+            leading={ <TouchableOpacity onPress={() => navigation.goBack()}>
             <Icon name="arrow-back"  
             // style={{backgroundColor:Colors.secondary,}}  
             color={theme.txt} size={30}
@@ -104,13 +134,30 @@ export default function Profile2() {
 
         <ScrollView showsVerticalScrollIndicator={false}>
 
-            <View>
-                <Avatar image={require('../../assets/image/user.png')}
-                size={100} style={{alignSelf:'center',marginTop:20}}></Avatar>
+            <TouchableOpacity activeOpacity={0.9} onPress={() => handleChoosePhoto()}>
+                {
+                    photo !== null ? (
+                        <Avatar image={{ uri: photo?.assets[0]?.uri }}
+                        size={100} style={{alignSelf:'center', marginVertical: 20}}></Avatar>
+                    ) : (
+                        profile ? (
+                            profile?.user ? (
+                                <Avatar image={{ uri: profile?.user?.image[0] }}
+                                    size={100} style={{alignSelf:'center', marginVertical: 20}}></Avatar>
+                            ) : (
+                                <Avatar image={require('../../assets/image/user.png')}
+                                    size={100} style={{alignSelf:'center', marginVertical: 20}}></Avatar>
+                            )
+                        ) : (
+                            <Avatar image={require('../../assets/image/user.png')}
+                                    size={100} style={{alignSelf:'center', marginVertical: 20}}></Avatar>
+                        )
+                    )
+                }
                 <Image source={require('../../assets/image/Exclude.png')}
                resizeMode='stretch'
-               style={{height:height/32,width:width/15,position:'absolute',bottom:0,right:125}}></Image>
-            </View>
+               style={{height:height/32,width:width/15,position:'absolute',bottom:15,right:130}}></Image>
+            </TouchableOpacity>
 
             <View style={[style.txtinput,{borderColor: isFocused === 'First Name' ? Colors.primary : theme.input,backgroundColor: isFocused==='First Name' ?'#584CF410': theme.input,marginTop:20}]}>
             <TextInput placeholder='First Name'

@@ -164,7 +164,7 @@ export default function Home() {
     <View style={[style.main,{backgroundColor:theme.bg,marginTop:20}]}>
         
         <View style={{flexDirection:'row',alignItems:'center',marginTop:10}}>
-            <Avatar.Image source={require('../../assets/image/user.png')} size={60}></Avatar.Image>
+            <Avatar.Image source={{ uri: userDets?.user?.image[0] }} size={60}></Avatar.Image>
             <View style={{flex:1,marginLeft:10}}>
                 <Text style={[style.r16,{color:theme.disable}]}>Welcome 👋</Text>
                 <Text style={[style.subtitle,{color:theme.txt}]}>{`${userDets?.user?.firstName} ${userDets?.user?.lastName}`}</Text>
@@ -286,6 +286,7 @@ export default function Home() {
                             <View style={{flexDirection:'row', flexWrap: 'wrap', width: '100%'}}>
                                 {
                                     list.map((item, index) => (
+                                        <>
                                         <TouchableOpacity style={[{padding:5, width: "50%"}]} activeOpacity={0.9} key={index} onPress={() => navigation.navigate('EventDetail', { itemObj: item })}>
                                             <View style={[style.shadow,{padding:10,backgroundColor:theme.borderbg,borderRadius:15, flex: 1}]}>
                                                 <ImageBackground source={{ uri: item.image[0] }}
@@ -303,6 +304,7 @@ export default function Home() {
                                                 </View>
                                             </View>
                                         </TouchableOpacity>
+                                        </>
                                     ))
                                 }
                             </View>

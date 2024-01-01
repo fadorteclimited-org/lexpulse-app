@@ -8,12 +8,13 @@ import { useNavigation } from '@react-navigation/native';
 import { AppBar, Avatar } from '@react-native-material/core';
 import Icon from 'react-native-vector-icons/Ionicons';
 import CheckBox from '@react-native-community/checkbox';
-import { BallIndicator, } from 'react-native-indicators'
+// import { BallIndicator, } from 'react-native-indicators'
 
 const width = Dimensions.get('screen').width
 const height = Dimensions.get('screen').height
 
-export default function NewPass() {
+export default function NewPass({ route }) {
+    const { email } = route.params;
 
     const theme = useContext(themeContext);
     const navigation = useNavigation();
@@ -22,6 +23,72 @@ export default function NewPass() {
     const [isPasswordVisible1, setIsPasswordVisible1] = useState(false);
     const [isSelected, setIsSelected] = useState(false)
     const [visible, setVisible] = useState(false)
+
+    const [loading, onLoading] = React.useState(false);
+    const [error, onError] = React.useState('');
+    const [password, onChangePassword] = React.useState('');
+    const [cPassword, onChangeCPassword] = React.useState('');
+
+    const setPassword = async () => {
+        onLoading(true);
+
+        if(password === '' || cPassword === '') {
+          onError('Please enter passwords');
+          onLoading(false);
+          return;
+        }
+
+        if(password !== cPassword) {
+            onError('Passwords do not match');
+            onLoading(false);
+            return;
+         }
+
+        try {
+
+          var config = {
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          };
+      
+          var data = {
+            "email": email,
+            "password": password,
+            "confirmPassword": cPassword
+          };
+          
+          var url = `${ENDPOINTS.login}/change-password`;
+      
+          axios.post(url, data, config)
+          .then(async (res) => {
+            onLoading(false);
+            setVisible(true);
+            onChangePassword('');
+            onChangeCPassword('');
+          })
+          .catch(error => {
+            console.log(error);
+            
+            if (error.response) {
+              onLoading(false);
+              onError(error.response.data.msg);
+            } else if (error.request) {
+              console.log(error.request);
+              onLoading(false);
+              onError('Problem signing in. Please try later!');
+            } else {
+              onLoading(false);
+              onError('Problem signing in. Please try later!');
+            }
+          });
+          
+        } catch (error) {
+          onLoading(false);
+          console.log(error);
+        }
+      };
+
     return (
         <SafeAreaView style={[style.area, { backgroundColor: theme.bg, }]}>
 
@@ -35,7 +102,7 @@ export default function NewPass() {
                         title='Create New Password'
                         titleStyle={[style.apptitle, { color: theme.txt }]}
                         elevation={0}
-                        leading={<TouchableOpacity onPress={() => navigation.navigate('OtpVerification')}>
+                        leading={<TouchableOpacity onPress={() => navigation.goBack()}>
                             <Icon name="arrow-back"
                                 // style={{backgroundColor:Colors.secondary,}}  
                                 color={theme.txt} size={30}
@@ -58,6 +125,7 @@ export default function NewPass() {
                                 secureTextEntry={!isPasswordVisible}
                                 onFocus={() => setIsFocused('New Password')}
                                 onBlur={() => setIsFocused(false)}
+                                onChangeText={onChangePassword}
                                 selectionColor={Colors.primary}
                                 placeholderTextColor={Colors.disable}
                                 style={[{ paddingHorizontal: 10, color: theme.txt, fontFamily: 'Urbanist-Regular', flex: 1 }]}
@@ -73,6 +141,7 @@ export default function NewPass() {
                                 secureTextEntry={!isPasswordVisible1}
                                 onFocus={() => setIsFocused('Confirm Password')}
                                 onBlur={() => setIsFocused(false)}
+                                onChangeText={onChangeCPassword}
                                 selectionColor={Colors.primary}
                                 placeholderTextColor={Colors.disable}
                                 style={[{ paddingHorizontal: 10, color: theme.txt, fontFamily: 'Urbanist-Regular', flex: 1 }]}
@@ -82,7 +151,7 @@ export default function NewPass() {
                             </TouchableOpacity>
                         </View>
 
-                        <View style={{ flexDirection: 'row', marginVertical: 20, paddingLeft: 10, alignItems: 'center', justifyContent: 'center' }}>
+                        {/* <View style={{ flexDirection: 'row', marginVertical: 20, paddingLeft: 10, alignItems: 'center', justifyContent: 'center' }}>
 
                             <CheckBox
                                 value={isSelected}
@@ -92,13 +161,33 @@ export default function NewPass() {
                                 <Text style={[style.b18, { color: theme.txt ,marginLeft:5}]}>Remember me</Text>
                             </View>
 
-                        </View>
+                        </View> */}
 
-                        <View style={{ marginVertical: 20 }}>
-                            <TouchableOpacity onPress={() => setVisible(true)}
-                                style={style.btn}>
-                                <Text style={style.btntxt}>Continue</Text>
-                            </TouchableOpacity>
+                        
+
+                        <View style={{flex:1,justifyContent:'flex-end',marginBottom:20 }}>
+                            {
+                                error && error.length > 0 ? (
+                                    <Text style={{ color: 'red', marginTop: 20, textAlign: 'center' }}>{error}</Text>
+                                ) : (
+                                    null
+                                )
+                            }
+                            {
+                                loading ? (
+                                    <View style={{ marginVertical: 20 }}>
+                                        <TouchableOpacity style={style.btn}>
+                                            <ActivityIndicator size="small" color="#ffffff" />
+                                        </TouchableOpacity>
+                                    </View>
+                                ) : (
+                                    <View style={{ marginVertical: 20 }}>
+                                        <TouchableOpacity onPress={() => setPassword()} style={style.btn}>
+                                            <Text style={style.btntxt}>Set Password</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                )
+                            }
                         </View>
 
                     </ScrollView>
@@ -119,11 +208,11 @@ export default function NewPass() {
                             </View>
                             <Image source={require('../../assets/image/congrats.png')} resizeMode='stretch' style={{ height: height / 5.5, width: width / 2.5, alignSelf: 'center',marginTop:10 }} />
                             <Text style={[style.apptitle, { color: Colors.primary, textAlign: 'center', marginTop: 20 }]}>Congratulations</Text>
-                            <Text style={[style.r16, { color: theme.txt, textAlign: 'center', marginTop: 10 }]}>Your account is ready to use. You will be redirected to the Home page in a few seconds..</Text>
-                            <BallIndicator size={30} color={Colors.primary} style={{ marginTop: 40 }} />
-                            <TouchableOpacity onPress={() => {setVisible(false),navigation.navigate('BottomNavigator')}}
+                            <Text style={[style.r16, { color: theme.txt, textAlign: 'center', marginTop: 10 }]}>You have successfully set a new password. Click the button to log in using your new password</Text>
+                            {/* <BallIndicator size={30} color={Colors.primary} style={{ marginTop: 40 }} /> */}
+                            <TouchableOpacity onPress={() => {setVisible(false), navigation.navigate('Login')}}
                                 style={[style.btn,{marginTop:40}]}>
-                                <Text style={style.btntxt}>Continue</Text>
+                                <Text style={style.btntxt}>Login</Text>
                             </TouchableOpacity>
                         
                         </View>

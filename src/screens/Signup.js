@@ -11,6 +11,7 @@ import  Icon  from 'react-native-vector-icons/Ionicons';
 // import CheckBox from '@react-native-community/checkbox';
 import { ENDPOINTS } from '../api/constants';
 import axios from 'axios';
+import DropDownPicker from 'react-native-dropdown-picker';
 
 
 const width = Dimensions.get('screen').width
@@ -30,15 +31,23 @@ export default function Signup() {
     const [email, onChangeEmail] = React.useState('');
     const [password, onChangePassword] = React.useState('');
 
+    const [open, setOpen] = useState(false);
+    const [value, setValue] = useState(null);
+    const [items, setItems] = useState([
+        {label: 'Ghana', value: 'Ghana'},
+        {label: 'Kenya', value: 'Kenya'},
+    ]);
+
     const signup = () => {
       onLoading(true);
-      if(email === '' || password === '') {
+      if(email === '' || password === '' || value === null) {
         onError('Please enter all fields');
         onLoading(false);
         return;
       }
 
-      navigation.navigate('Profilefill', { email: email, password: password });
+      onLoading(false);
+      navigation.navigate('Profilefill', { email: email, password: password, country: value });
     };
 
   return (
@@ -99,6 +108,19 @@ export default function Signup() {
                     </TouchableOpacity>
         </View>
 
+        <View style={[style.txtinput,{borderColor: isFocused === 'Country' ? Colors.primary : theme.input,backgroundColor: isFocused ==='Country' ?'#584CF410': theme.input,marginTop:10}]}>
+            <DropDownPicker
+                open={open}
+                value={value}
+                items={items}
+                setOpen={setOpen}
+                setValue={setValue}
+                setItems={setItems}
+                placeholder="Select your country"
+                style={{ borderColor: isFocused === 'Country' ? Colors.primary : theme.input, backgroundColor: isFocused ==='Country' ?'#584CF410': theme.input }}
+            />
+        </View>
+
         {/* <View style={{ flexDirection: 'row', marginVertical: 20, paddingLeft:10,alignItems:'center',justifyContent:'center' }}>
          
         <CheckBox
@@ -121,14 +143,14 @@ export default function Signup() {
           }
           {
             loading ? (
-              <View style={{ marginTop: 20 }}>
+              <View style={{ marginTop: 100 }}>
                 <TouchableOpacity 
                 style={style.btn}>
                   <ActivityIndicator size="small" color="#ffffff" />
                 </TouchableOpacity>
               </View>
             ) : (
-              <View style={{ marginTop: 20 }}>
+              <View style={{ marginTop: 100 }}>
                 <TouchableOpacity onPress={() => signup()} style={style.btn}>
                   <Text style={style.btntxt}>Sign up</Text>
                 </TouchableOpacity>

@@ -1,5 +1,5 @@
 import { View, Text ,SafeAreaView, TextInput, StatusBar,TouchableOpacity,Image,ScrollView,Dimensions} from 'react-native'
-import React,{useState,useContext} from 'react'
+import React,{useState, useContext, useEffect} from 'react'
 import theme from '../theme/theme';
 import themeContext from '../theme/themeContex';
 import style from '../theme/style';
@@ -11,7 +11,7 @@ import { createMaterialTopTabNavigator } from '@react-navigation/material-top-ta
 
 const Tab = createMaterialTopTabNavigator();
 
-const width =Dimensions.get('screen').width
+const width = Dimensions.get('screen').width
 const height = Dimensions.get('screen').height
 
 const Tabs = (props) => {
@@ -88,7 +88,49 @@ export default function BookEvent({ route }) {
     const navigation = useNavigation();
     
     const [item, setItem] = useState(itemObj);
-    const [ticketNumber, setTicketNumber] = useState(1);
+
+    const [ticketQuantities, setTicketQuantities] = useState([]);
+
+      useEffect(() => {
+        // Set default ticket quantities to 1 for each ticket type
+        const defaultQuantities = item.ticketInfo.map((ticketItem) => ({
+          ticketType: ticketItem.ticketType,
+          numberOfTickets: 1,
+        }));
+        setTicketQuantities(defaultQuantities);
+      }, [item.ticketInfo]);
+
+      const incrementTicket = (index) => {
+        setTicketQuantities((prevQuantities) => {
+          const updatedQuantities = [...prevQuantities];
+          updatedQuantities[index] = {
+            ...updatedQuantities[index],
+            numberOfTickets: (updatedQuantities[index]?.numberOfTickets || 1) + 1,
+          };
+          return updatedQuantities;
+        });
+      };
+    
+      const decrementTicket = (index) => {
+        setTicketQuantities((prevQuantities) => {
+          const updatedQuantities = [...prevQuantities];
+          const count = updatedQuantities[index]?.numberOfTickets || 1;
+          updatedQuantities[index] = {
+            ...updatedQuantities[index],
+            numberOfTickets: count > 1 ? count - 1 : 1,
+          };
+          return updatedQuantities;
+        });
+      };
+
+      const getTotalPrice = () => {
+        let totalPrice = 0;
+        item.ticketInfo.forEach((ticketItem, index) => {
+          const quantity = ticketQuantities[index]?.numberOfTickets || 1;
+          totalPrice += quantity * ticketItem.price;
+        });
+        return totalPrice;
+      };
 
     return (
     <SafeAreaView style={[style.area,{backgroundColor:theme.bg,}]}>
@@ -110,20 +152,36 @@ export default function BookEvent({ route }) {
 
         <Text style={[style.subtitle,{color:theme.txt,marginTop:20}]}>Choose number of tickets</Text>
 
-        <View style={{flexDirection:'row',alignItems:'center',justifyContent:'center',marginTop:20}}>
-            <TouchableOpacity style={{width:width/9,height:height/22,borderColor:theme.border,backgroundColor:theme.borderbg,borderWidth:1,borderRadius:10,alignItems:'center'}} activeOpacity={0.9}  onPress={() => { ticketNumber > 1 ? (setTicketNumber(ticketNumber - 1)) : (null) }}>
-                <Text style={[style.title,{color:Colors.primary,marginTop:-4}]}>-</Text>
-            </TouchableOpacity>
-            <Text style={[style.title,{color:theme.txt,marginHorizontal:30}]}>{ticketNumber}</Text>
-            <TouchableOpacity style={{width:width/9,height:height/22,borderColor:theme.border,backgroundColor:theme.borderbg,borderWidth:1,borderRadius:10,alignItems:'center'}} activeOpacity={0.9} onPress={() => { ticketNumber < item.ticketsAvailable ? (setTicketNumber(ticketNumber + 1)) : (null) }}>
-                <Text style={[style.title,{color:Colors.primary,marginTop:-4}]}>+</Text>
-            </TouchableOpacity>
-        </View>
+        {item.ticketInfo.map((ticketItem, index) => (
+          <React.Fragment key={index}>
+            <Text style={[style.subtitle, style.b16, { color: theme.txt, marginTop: 40 }]}>{ticketItem.ticketType}</Text>
+
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 20, marginBottom: 50 }}>
+              <TouchableOpacity
+                style={{ width: 40, height: 40, borderColor: theme.border, backgroundColor: theme.borderbg, borderWidth: 1, borderRadius: 10, alignItems: 'center' }}
+                activeOpacity={0.9}
+                onPress={() => decrementTicket(index)}
+              >
+                <Text style={[style.title, { color: Colors.primary, marginTop: -4 }]}>-</Text>
+              </TouchableOpacity>
+              <Text style={[style.title, { color: theme.txt, marginHorizontal: 30 }]}>
+                {ticketQuantities[index]?.numberOfTickets || 1}
+              </Text>
+              <TouchableOpacity
+                style={{ width: 40, height: 40, borderColor: theme.border, backgroundColor: theme.borderbg, borderWidth: 1, borderRadius: 10, alignItems: 'center' }}
+                activeOpacity={0.9}
+                onPress={() => incrementTicket(index)}
+              >
+                <Text style={[style.title, { color: Colors.primary, marginTop: -4 }]}>+</Text>
+              </TouchableOpacity>
+            </View>
+          </React.Fragment>
+        ))}
 
         <View style={{flex:1,justifyContent:'flex-end',marginBottom:20}}>
-            <TouchableOpacity onPress={() => navigation.navigate('ReviewSummary', { itemObj: item, ticketNumber: ticketNumber })} 
+            <TouchableOpacity onPress={() => navigation.navigate('ReviewSummary', { itemObj: item, ticketQuantities: ticketQuantities, totalPrice: getTotalPrice() })} 
             style={style.btn}>
-            <Text style={style.btntxt}>Continue - {item.price === 0 ? (`Free Event`) : (`${item.currency} ${Number(item.price) * ticketNumber}`)}</Text>
+            <Text style={style.btntxt}>Continue - {getTotalPrice() === 0 ? (`Free Event`) : (`${item.currency} ${getTotalPrice()}`)}</Text>
             </TouchableOpacity>
         </View>
 

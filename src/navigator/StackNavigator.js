@@ -63,6 +63,7 @@ import Helpcenter from '../screens/Helpcenter';
 import Language from '../screens/Language';
 import SuccessfulBooking from '../screens/SuccessfulBooking';
 import FailedBooking from '../screens/FailedBooking';
+import SuccessfulOtpVerification from '../screens/SuccessfulOtpVerification';
 
 
 const Stack = createNativeStackNavigator();
@@ -163,6 +164,10 @@ export default function StackNavigator() {
           <Stack.Screen
             name="OtpVerification"
             component={OtpVerification}
+            options={{ headerShown: false }} />
+          <Stack.Screen
+            name="SuccessfulOtpVerification"
+            component={SuccessfulOtpVerification}
             options={{ headerShown: false }} />
           <Stack.Screen
             name="OtpBooking"

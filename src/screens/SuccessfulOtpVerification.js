@@ -14,28 +14,22 @@ import Clipboard from '@react-native-clipboard/clipboard'
 const width = Dimensions.get('screen').width
 const height = Dimensions.get('screen').height
 
-export default function FailedBooking() {
+export default function SuccessfulOtpVerification() {
     const theme = useContext(themeContext);
     const navigation = useNavigation();
-    const [visible, setVisible] = useState(false)
-    const [isvisible, setIsVisible] = useState(false)
 
     return (
         <SafeAreaView style={[style.area, { backgroundColor: theme.bg }]}>
             <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : null}>
                 <View style={{ marginHorizontal: 20, marginTop: 100 }}>
-                    {/* <View style={{ alignItems: 'flex-end' }}>
-                        <TouchableOpacity onPress={() => { setVisible(false) }}>
-                            <Icon name='close' size={20} color={theme.txt} />
-                        </TouchableOpacity>
-                    </View> */}
-                    <Image source={require('../../assets/image/failed.png')} resizeMode='stretch' style={{ height: height / 5.5, width: width / 2.5, alignSelf: 'center', marginTop: 10 }} />
-                    <Text style={[style.apptitle, { color: '#F75555', textAlign: 'center', marginTop: 20 }]}>Oops, Failed!</Text>
-                    <Text style={[style.r16, { color: theme.txt, textAlign: 'center', marginTop: 10 }]}>Your booking failed. Please check and then try again.</Text>
+                    
+                    <Image source={require('../../assets/image/congrats1.png')} resizeMode='stretch' style={{ height: height / 5.5, width: width / 2.5, alignSelf: 'center', marginTop: 10 }} />
+                    <Text style={[style.apptitle, { color: Colors.primary, textAlign: 'center', marginTop: 20 }]}>Congratulations!</Text>
+                    <Text style={[style.r16, { color: theme.txt, textAlign: 'center', marginTop: 10 }]}>You have successfully been verified! Click the button to go to your home.</Text>
                     <View style={{ marginTop: 20 }}>
-                        <TouchableOpacity onPress={() => { navigation.navigate('BottomNavigator') }}
+                        <TouchableOpacity onPress={() => { navigation.navigate('Home')} }
                             style={style.btn}>
-                            <Text style={style.btntxt}>Try Again</Text>
+                            <Text style={style.btntxt}>Home</Text>
                         </TouchableOpacity>
                     </View>
                 </View>

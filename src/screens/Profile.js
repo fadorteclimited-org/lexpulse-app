@@ -94,13 +94,25 @@ export default function Profile() {
             <View style={[style.main, { backgroundColor: theme.bg, marginTop: 30 }]}>
                 <View style={{ backgroundColor: theme.bg, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <Image source={require('../../assets/image/logo1.png')} resizeMode='stretch' style={{ height: height / 35, width: width / 15 }} />
+                        <Image source={require('../../assets/image/logo1.png')} resizeMode='stretch' style={{ height: height / 35, width: width / 15, borderRadius: 50 }} />
                         <Text style={[style.apptitle, { color: theme.txt, marginLeft: 10 }]}>Profile</Text>
                     </View>
-                    {/* <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <Icon name='ellipsis-horizontal-circle' color={Colors.active} size={25} style={{ marginRight: 5 }} />
-
-                    </View> */}
+                    <TouchableOpacity 
+                        style={{ flexDirection: 'row', alignItems: 'center' }} 
+                        onPress={
+                            () => {
+                                setDarkMode(!darkMode);
+                                EventRegister.emit('ChangeTheme', darkMode)
+                            }
+                        }>
+                        {
+                            darkMode === true ? (
+                                <Icon name='moon-outline' color={Colors.active} size={25} style={{ marginRight: 5 }} />
+                            ) : (
+                                <Icon name='sunny-outline' color={'#FFF'} size={25} style={{ marginRight: 5 }} />
+                            )
+                        }
+                    </TouchableOpacity>
                 </View>
                 {
                     loading ? (
@@ -109,7 +121,17 @@ export default function Profile() {
                         </View>
                     ) : (
                         <View style={{ alignItems: 'center', marginTop: 20 }}>
-                            <Image source={require('../../assets/image/user.png')} resizeMode='stretch' style={{ height: height / 7, width: width / 3.2 }} />
+                            {
+                                profile ? (
+                                    profile?.user ? (
+                                        <Image source={{ uri: profile?.user?.image[0] }} resizeMode='stretch' style={{ height: height / 7, width: width / 3.2, borderRadius: 100 }} />
+                                    ) : (
+                                        <Image source={require('../../assets/image/user.png')} resizeMode='stretch' style={{ height: height / 7, width: width / 3.2, borderRadius: 100 }} />
+                                    )
+                                ) : (
+                                    <Image source={require('../../assets/image/user.png')} resizeMode='stretch' style={{ height: height / 7, width: width / 3.2 }} />
+                                )
+                            }
                             <Text style={[style.title, { color: theme.txt, marginTop: 15, marginBottom: 10 }]}>{`${profile?.user?.firstName} ${profile?.user?.lastName}`}</Text>
                             <Text style={[style.r12, { color: theme.txt, marginLeft: 10 }]}>{profile?.user?.email}</Text>
                         </View>
@@ -153,7 +175,7 @@ export default function Profile() {
 
                     <View style={[style.divider, { backgroundColor: theme.border, marginVertical: 15 }]}></View> */}
 
-                    <TouchableOpacity onPress={() => navigation.navigate('Profile2')}
+                    <TouchableOpacity onPress={() => navigation.navigate('Profile2', { profile: profile })}
                         style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
                         <View style={{ flexDirection: 'row' }}>
                             <Icons name='account-outline' size={25} color={theme.txt} />
@@ -216,7 +238,7 @@ export default function Profile() {
                             <Text style={[style.b18, { color: theme.txt, marginLeft: 10, marginRight: 5 }]}>English(US)</Text>
                             <Icons name='chevron-right' color={theme.txt} size={30} />
                         </View>
-                    </TouchableOpacity> */}
+                    </TouchableOpacity>
 
                     <TouchableOpacity style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
                         <View style={{ flexDirection: 'row' }}>
@@ -235,7 +257,7 @@ export default function Profile() {
                             />
                         </View>
 
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
 
                     <TouchableOpacity onPress={() => navigation.navigate('Helpcenter')}
                         style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
