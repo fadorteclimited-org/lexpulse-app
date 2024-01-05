@@ -1,5 +1,6 @@
-import { View, Text, TextInput, ScrollView, TouchableOpacity, ImageBackground, Image, Dimensions, KeyboardAvoidingView, Modal } from 'react-native'
+import { ActivityIndicator, View, Text, TextInput, ScrollView, TouchableOpacity, ImageBackground, Image, Dimensions, KeyboardAvoidingView, Modal } from 'react-native'
 import React, { useState, useContext } from 'react'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Colors } from '../theme/color'
 import style from '../theme/style'
 import themeContext from '../theme/themeContex'
@@ -12,9 +13,13 @@ import OtpInputs from 'react-native-otp-inputs'
 import Clipboard from '@react-native-clipboard/clipboard'
 import { SafeAreaView } from 'react-native'
 import RBSheet from 'react-native-raw-bottom-sheet';
+import { ENDPOINTS } from '../api/constants';
+import axios from 'axios';
+import moment from 'moment';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import FList from './FList'
 import All from './All'
+import { AuthContext } from '../../App';
 
 
 import ResultCard from './ResultCard'
@@ -139,6 +144,7 @@ const Musiclist = () =>{
 
 export default function Resultlist() {
     const theme = useContext(themeContext);
+    const { signOut } = React.useContext(AuthContext);
     const navigation = useNavigation();
     const [select, setselect] = useState(false);
     const [isSelect, setisSelect] = useState(false);
@@ -154,6 +160,65 @@ export default function Resultlist() {
     const [T5, setT5] = useState(false)
     const [T6, setT6] = useState(false)
 
+    const [loading, onLoading] = useState(false);
+    const [error, onError] = useState('');
+    const [list, setList] = useState([]);
+    const [query, setQuery] = useState('');
+
+    const searchEvent = async () => {
+  
+        try {
+          if(query.length < 4) {
+            onError("Please enter more than 4 characters");
+            return
+          }
+
+          onLoading(true);
+
+          const jsonValue = await AsyncStorage.getItem('userDetails');
+          const parsedValue = JSON.parse(jsonValue);
+
+          var config = {
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${parsedValue.token}`
+            }
+          };
+          
+          var url = `${ENDPOINTS.events + (parsedValue.user.country ? (`?country=${parsedValue.user.country}&search=${query}`) : (``))}`;
+      
+          axios.get(url, config)
+          .then(async (res) => {
+            onLoading(false);
+            setList(res.data.data);
+          })
+          .catch(error => {
+            console.log(error);
+            
+            if (error.response) {
+                if(error.response.status === 403) {
+                    signOut();
+                    return;
+                }
+  
+              onLoading(false);
+              onError(error.response.data.msg);
+            } else if (error.request) {
+              console.log(error.request);
+              onLoading(false);
+              onError('Problem signing in. Please try later!');
+            } else {
+              onLoading(false);
+              onError('Problem signing in. Please try later!');
+            }
+          });
+          
+        } catch (error) {
+          onLoading(false);
+          console.log(error);
+        }
+      };
+
     return (
         <SafeAreaView style={[style.area, { backgroundColor: theme.bg }]}>
             <View style={[style.main, { backgroundColor: theme.bg ,marginTop:30}]}>
@@ -161,10 +226,10 @@ export default function Resultlist() {
                     color={theme.bg}
                     elevation={0}
                     title={<View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: theme.input, paddingHorizontal: 10, borderRadius: 12, height: 50 }}>
-                        <Icon name='search' size={20} color={theme.disable} />
-                        <TextInput placeholder='Music' placeholderTextColor={Colors.disable} selectionColor={Colors.primary} style={[style.r14, { color: theme.txt }]} />
+                        {/* <Icon name='search' size={20} color={theme.disable} /> */}
+                        <TextInput placeholder='Launch Party' placeholderTextColor={Colors.disable} selectionColor={Colors.primary} style={[style.r14, { color: theme.txt }]} onChangeText={setQuery} />
                         <View style={{ flex: 1, alignItems: 'flex-end' }}>
-                            <TouchableOpacity onPress={() => this.RBSheet.open()}>
+                            <TouchableOpacity /* onPress={() => this.RBSheet.open()} */ onPress={() => searchEvent()}>
                                 <RBSheet ref={ref => {
                                     this.RBSheet = ref;
                                 }}
@@ -264,7 +329,9 @@ export default function Resultlist() {
                                         </View>
                                     </View>
                                 </RBSheet>
-                                <Image source={require('../../assets/image/Filter.png')} resizeMode='stretch' style={{ height: height / 35, width: width / 19 }} />
+                                {/* <Image source={require('../../assets/image/Filter.png')} resizeMode='stretch' style={{ height: height / 35, width: width / 19 }} /> */}
+
+                                <Icon name='search' size={20} color={Colors.primary} />
                             </TouchableOpacity>
                         </View>
                     </View>}
@@ -276,7 +343,84 @@ export default function Resultlist() {
                     </TouchableOpacity>
                     } />
 
-    <TopNavigator></TopNavigator>
+                    {/* <TopNavigator></TopNavigator> */}
+
+                    <ScrollView showsVerticalScrollIndicator={false} style={{marginTop:10}} nestedScrollEnabled={true}>
+
+                    {
+                        loading ? (
+                            <View style={{ width: '100%', height: '100%', paddingTop: '30%' }}>
+                                <ActivityIndicator size="large" color="#584CF4" />
+                            </View>
+                        ) : (
+                            <>
+                                {/* <ScrollView horizontal showsHorizontalScrollIndicator={false} nestedScrollEnabled={true} style={{ marginVertical: 20 }}>
+                                    <View style={{ flexDirection: 'row' }}>
+                                        <View style={{ marginRight: 20 }}>
+                                            <TouchableOpacity onPress={()=>setT1(!T1)}
+                                            style={{ padding: 20, borderColor: theme.disable, borderWidth: 1, borderRadius: 50, backgroundColor:T1?Colors.primary:theme.bg}}>
+
+                                                <Icon name='checkbox-outline' size={30} color={T1 ? '#fff': theme.disable}></Icon>
+                                            </TouchableOpacity>
+                                            <Text style={[style.b16, { color: T1 ? Colors.primary:theme.disable, textAlign: 'center', marginTop: 10 }]}>All</Text>
+                                        </View>
+                                        <View>
+                                            <TouchableOpacity onPress={()=>setT2(!T2)}
+                                            style={{ padding: 20, borderColor: theme.disable, borderWidth: 1, borderRadius: 50, backgroundColor:T2?Colors.primary:theme.bg}}>
+
+                                                <Icon name='calendar-outline' size={30} color={T2 ? '#fff': theme.disable}></Icon>
+                                            </TouchableOpacity>
+                                            <Text style={[style.b16, { color: T2 ? Colors.primary:theme.disable, textAlign: 'center', marginTop: 10 }]}>Events</Text>
+                                        </View>
+                                    </View>
+                                </ScrollView> */}
+
+                                {
+                                    list.length > 0 ? (
+                                        <View style={{flexDirection:'row', flexWrap: 'wrap', width: '100%'}}>
+                                            {
+                                                list.map((item, index) => (
+                                                    <TouchableOpacity style={[{padding:5, width: "50%"}]} activeOpacity={0.9} key={index} onPress={() => navigation.navigate('EventDetail', { itemObj: item })}>
+                                                        <View style={[style.shadow,{padding:10,backgroundColor:theme.borderbg,borderRadius:15, flex: 1}]}>
+                                                            <ImageBackground source={{ uri: item.image[0] }}
+                                                            resizeMode='stretch'
+                                                            imageStyle={{ borderRadius: 20}}
+                                                            style={{height: height/6}}></ImageBackground>
+                                                            <Text style={[style.b18,{color:theme.txt,marginTop:5}]}>{item.eventName}</Text>
+                                                            <Text style={[style.r12,{color:Colors.primary,marginVertical:5}]}>{moment.utc(item.eventDate).local().format('MMM DD, YYYY')}</Text>
+                                                            <View style={{flexDirection:'row',alignItems:'center',}}>
+                                                                <Icon name='location' size={20} color={Colors.primary}></Icon>
+                                                                <Text style={[style.r12,{color:theme.disable2,flex:1,marginHorizontal:10,}]}>{item.location ? (item.location.length > 10 ? `${item.location.substring(0, 10)}...` : item.location) : 'No Location'}</Text>
+                                                                <View>
+                                                                <Icon name='list-circle-outline' size={20} color={Colors.primary}></Icon>
+                                                                </View>
+                                                            </View>
+                                                        </View>
+                                                    </TouchableOpacity>
+                                                ))
+                                            }
+                                        </View>
+                                    ) : (
+                                        <View style={{ height: '80%', width: '100%', alignItems: 'center' }}>
+                                            <Image source={require('../../assets/image/noevents.png')} resizeMode='stretch' style={{width:width/1.5, height:height/4.2, marginTop: '30%' }}></Image>
+
+                                            {
+                                                error && error.length > 0 ? (
+                                                    <Text style={{ color: 'red', marginTop: 20, textAlign: 'center' }}>{error}</Text>
+                                                ) : (
+                                                    null
+                                                )
+                                            }
+                                        </View>
+                                    )
+                                }
+
+                                <View style={{ marginTop: 100, marginBottom: 30 }} />
+                            </>
+                        )
+                    }
+
+                    </ScrollView>
 
  
 

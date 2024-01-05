@@ -16,7 +16,7 @@ import RBSheet from 'react-native-raw-bottom-sheet';
 import { EventRegister } from 'react-native-event-listeners'
 import { ENDPOINTS } from '../api/constants';
 import axios from 'axios';
-
+import { AuthContext } from '../../App';
 
 
 const width = Dimensions.get('screen').width
@@ -24,6 +24,7 @@ const height = Dimensions.get('screen').height
 
 export default function Profile() {
     const theme = useContext(themeContext);
+    const { signOut } = React.useContext(AuthContext);
     const navigation = useNavigation();
     const [darkMode, setDarkMode] = useState('false');
     
@@ -53,6 +54,11 @@ export default function Profile() {
             .catch(error => {
                 
                 if (error.response) {
+                    if(error.response.status === 403) {
+                        signOut();
+                        return;
+                    }
+
                     onLoading(false);
                     onError(error.response.data.msg);
                 } else if (error.request) {
@@ -94,7 +100,7 @@ export default function Profile() {
             <View style={[style.main, { backgroundColor: theme.bg, marginTop: 30 }]}>
                 <View style={{ backgroundColor: theme.bg, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <Image source={require('../../assets/image/logo1.png')} resizeMode='stretch' style={{ height: height / 35, width: width / 15, borderRadius: 50 }} />
+                        <Image source={require('../../assets/image/logo1.png')} resizeMode='stretch' style={{ height: height / 35, width: width / 15 }} />
                         <Text style={[style.apptitle, { color: theme.txt, marginLeft: 10 }]}>Profile</Text>
                     </View>
                     <TouchableOpacity 
@@ -109,7 +115,7 @@ export default function Profile() {
                             darkMode === true ? (
                                 <Icon name='moon-outline' color={Colors.active} size={25} style={{ marginRight: 5 }} />
                             ) : (
-                                <Icon name='sunny-outline' color={'#FFF'} size={25} style={{ marginRight: 5 }} />
+                                <Icon name='sunny-outline' color={Colors.secondary} size={25} style={{ marginRight: 5 }} />
                             )
                         }
                     </TouchableOpacity>
@@ -313,7 +319,7 @@ export default function Profile() {
                                     </View>
                                     <View style={{ marginHorizontal: 10 }}></View>
                                     <View style={{ flex: 1 }}>
-                                        <TouchableOpacity onPress={() => { this.RBSheet8.close(), logOut() }}
+                                        <TouchableOpacity onPress={() => { this.RBSheet8.close(), signOut() }}
                                         style={[style.btn,]}>
                                             <Text style={[style.btntxt, { color: Colors.secondary }]}>Yes, Logout</Text>
                                         </TouchableOpacity>

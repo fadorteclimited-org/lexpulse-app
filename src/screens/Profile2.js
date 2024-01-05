@@ -11,6 +11,7 @@ import  Icon  from 'react-native-vector-icons/Ionicons';
 import { ENDPOINTS } from '../api/constants';
 import axios from 'axios';
 import { launchImageLibrary } from 'react-native-image-picker';
+import { AuthContext } from '../../App';
 
 const width = Dimensions.get('screen').width
 const height = Dimensions.get('screen').height
@@ -19,6 +20,7 @@ export default function Profile2({ route }) {
     const { profile } = route.params;
 
     const theme = useContext(themeContext);
+    const { signOut } = React.useContext(AuthContext);
     const navigation=useNavigation();
     const [isFocused, setIsFocused] = useState(false)
     const [photo, setPhoto] = React.useState(null);
@@ -93,6 +95,11 @@ export default function Profile2({ route }) {
             console.log(error);
             
             if (error.response) {
+              if(error.response.status === 403) {
+                  signOut();
+                  return;
+              }
+
               onLoading(false);
               onError(error.response.data.msg);
             } else if (error.request) {

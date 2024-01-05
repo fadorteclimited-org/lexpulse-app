@@ -11,6 +11,7 @@ import  Icon  from 'react-native-vector-icons/Ionicons';
 import CheckBox from '@react-native-community/checkbox';
 import { ENDPOINTS } from '../api/constants';
 import axios from 'axios';
+import { AuthContext } from '../../App';
 
 const width =Dimensions.get('screen').width
 const height = Dimensions.get('screen').height
@@ -19,6 +20,7 @@ export default function Login() {
 
     const [isPasswordVisible, setIsPasswordVisible] = useState(false)
     const theme = useContext(themeContext);
+    const { signIn, state } = React.useContext(AuthContext);
     const navigation=useNavigation();
     const [isSelected, setIsSelected] = useState(false);
     const [isFocused, setIsFocused] = useState(false)
@@ -148,20 +150,20 @@ export default function Login() {
 
        <View style={{ marginVertical: 20 }}>
           {
-            error && error.length > 0 ? (
-              <Text style={{ color: 'red', marginTop: 20, marginBottom: 20, textAlign: 'center' }}>{error}</Text>
+            state.loginError && state.loginError.length > 0 ? (
+              <Text style={{ color: 'red', marginTop: 20, marginBottom: 20, textAlign: 'center' }}>{state.loginError}</Text>
             ) : (
               null
             )
           }
           {
-            loading ? (
+            state.loginLoading ? (
               <TouchableOpacity 
               style={style.btn}>
                 <ActivityIndicator size="small" color="#ffffff" />
               </TouchableOpacity>
             ) : (
-              <TouchableOpacity onPress={() => login()} 
+              <TouchableOpacity onPress={() => signIn({ email, password })} 
               style={style.btn}>
                 <Text style={style.btntxt}>Sign in</Text>
               </TouchableOpacity>

@@ -12,6 +12,7 @@ import RBSheet from 'react-native-raw-bottom-sheet';
 import { ENDPOINTS } from '../api/constants';
 import axios from 'axios';
 import moment from 'moment';
+import { AuthContext } from '../../App';
 
 
 const width = Dimensions.get('screen').width
@@ -21,6 +22,7 @@ export default function EventDetail({ route }) {
     const { itemObj } = route.params;
 
     const theme = useContext(themeContext);
+    const { signOut } = React.useContext(AuthContext);
     const navigation = useNavigation();
 
     const [loading, onLoading] = useState(false);
@@ -54,6 +56,11 @@ export default function EventDetail({ route }) {
                 console.log(error);
                 
                 if (error.response) {
+                    if(error.response.status === 403) {
+                        signOut();
+                        return;
+                    }
+
                     onLoading(false);
                     onError(error.response.data.msg);
                 } else if (error.request) {
@@ -116,6 +123,11 @@ export default function EventDetail({ route }) {
           .catch(error => {
             
             if (error.response) {
+                if(error.response.status === 403) {
+                    signOut();
+                    return;
+                }
+
             console.log(error.response)
               onLoading(false);
               onError(error.response.data.error);
@@ -291,7 +303,7 @@ export default function EventDetail({ route }) {
                         <View style={{ marginHorizontal: 10 }}>
                             {
                                 item?.ticketInfo?.map((ticketItem, index) => (
-                                    <View style={{ marginBottom: 20 }}>
+                                    <View style={{ marginBottom: 20 }} key={index}>
                                         <Text style={[style.b18, { color: theme.txt }]}>{item.price === 0 ? (`Free`) : (`${item.currency} ${ticketItem.price}`)}</Text>
                                         <Text style={[style.r14, { color: theme.txt, marginVertical: 7 }]}>{ticketItem.ticketType}</Text>
                                     </View>

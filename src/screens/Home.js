@@ -15,6 +15,7 @@ import moment from 'moment';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { color } from 'react-native-elements/dist/helpers';
 import TopNavigator from '../navigator/TopNavigator';
+import { AuthContext } from '../../App';
 // import Demo from './Demo';
 const width =Dimensions.get('screen').width
 const height = Dimensions.get('screen').height
@@ -22,6 +23,7 @@ const height = Dimensions.get('screen').height
 export default function Home() {
 
     const theme = useContext(themeContext);
+    const { signOut } = React.useContext(AuthContext);
     const navigation = useNavigation();
 
     const [userDets, setUserDets] = useState({});
@@ -60,11 +62,16 @@ export default function Home() {
                 setValue(parsedValue.user.country);
             })
             .catch(error => {
-                console.log(error);
-                
+
                 if (error.response) {
+                    if(error.response.status === 403) {
+                        signOut();
+                        return;
+                    }
+
                     onLoading(false);
                     onError(error.response.data.msg);
+                    console.log(error.response.status);
                 } else if (error.request) {
                     console.log(error.request);
                     onLoading(false);
@@ -259,25 +266,22 @@ export default function Home() {
                 <>
                     <ScrollView horizontal showsHorizontalScrollIndicator={false} nestedScrollEnabled={true} style={{ marginVertical: 20 }}>
                         <View style={{ flexDirection: 'row' }}>
-                            <TouchableOpacity onPress={()=>setT1(!T1)}
-                            style={{ paddingVertical: 5, paddingHorizontal: 15, borderColor: Colors.primary, borderWidth: 1, borderRadius: 15, backgroundColor:T1?Colors.primary:theme.bg}}>
-                                <Text style={[style.b16, { color: T1?Colors.secondary:Colors.primary }]}>✅ All</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={()=>setT2(!T2)} style={{ paddingVertical: 5, paddingHorizontal: 15, borderColor: Colors.primary, borderWidth: 1, borderRadius: 15, marginHorizontal: 10 , backgroundColor:T2?Colors.primary:theme.bg}}>
-                                <Text style={[style.b16, { color: T2?Colors.secondary:Colors.primary }]}>🎵 Music</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={()=>setT3(!T3)} style={{ paddingVertical: 5, paddingHorizontal: 15, borderColor: Colors.primary, borderWidth: 1, borderRadius: 15,  backgroundColor:T3?Colors.primary:theme.bg}}>
-                                <Text style={[style.b16, { color: T3?Colors.secondary:Colors.primary  }]}>💼 Workshops</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={()=>setT4(!T4)} style={{ paddingVertical: 5, paddingHorizontal: 15, borderColor: Colors.primary, borderWidth: 1, borderRadius: 15, marginHorizontal: 10, backgroundColor:T4?Colors.primary:theme.bg }}>
-                                <Text style={[style.b16, {color: T5?Colors.secondary:Colors.primary  }]}>🎨 Art</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={()=>setT5(!T5)} style={{ paddingVertical: 5, paddingHorizontal: 15, borderColor: Colors.primary, borderWidth: 1, borderRadius: 15,  backgroundColor:T5?Colors.primary:theme.bg}}>
-                                <Text style={[style.b16, { color: T5?Colors.secondary:Colors.primary }]}>🍕 Food & Drink</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={()=>setT6(!T6)} style={{ paddingVertical: 5, paddingHorizontal: 15, borderColor: Colors.primary, borderWidth: 1, borderRadius: 15, marginLeft: 10, backgroundColor:T6?Colors.primary:theme.bg }}>
-                                <Text style={[style.b16, {color: T6?Colors.secondary:Colors.primary  }]}>🧥 Fashion</Text>
-                            </TouchableOpacity>
+                            <View style={{ marginRight: 20 }}>
+                                <TouchableOpacity onPress={()=>setT1(!T1)}
+                                style={{ padding: 20, borderColor: Colors.primary, borderWidth: 1, borderRadius: 50, backgroundColor:T1?Colors.primary:theme.bg}}>
+
+                                    <Icon name='checkbox' size={30} color={T1 ? '#FFF': '#238704'}></Icon>
+                                </TouchableOpacity>
+                                <Text style={[style.b16, { color: T1 ? Colors.primary:theme.disable, textAlign: 'center', marginTop: 10 }]}>All</Text>
+                            </View>
+                            <View>
+                                <TouchableOpacity onPress={()=>setT2(!T2)}
+                                style={{ padding: 20, borderColor: Colors.primary, borderWidth: 1, borderRadius: 50, backgroundColor:T2?Colors.primary:theme.bg}}>
+
+                                    <Icon name='bonfire' size={30} color={T2 ? '#FFF': '#DF6106'}></Icon>
+                                </TouchableOpacity>
+                                <Text style={[style.b16, { color: T2 ? Colors.primary:theme.disable, textAlign: 'center', marginTop: 10 }]}>Events</Text>
+                            </View>
                         </View>
                     </ScrollView>
 
@@ -286,7 +290,6 @@ export default function Home() {
                             <View style={{flexDirection:'row', flexWrap: 'wrap', width: '100%'}}>
                                 {
                                     list.map((item, index) => (
-                                        <>
                                         <TouchableOpacity style={[{padding:5, width: "50%"}]} activeOpacity={0.9} key={index} onPress={() => navigation.navigate('EventDetail', { itemObj: item })}>
                                             <View style={[style.shadow,{padding:10,backgroundColor:theme.borderbg,borderRadius:15, flex: 1}]}>
                                                 <ImageBackground source={{ uri: item.image[0] }}
@@ -304,7 +307,6 @@ export default function Home() {
                                                 </View>
                                             </View>
                                         </TouchableOpacity>
-                                        </>
                                     ))
                                 }
                             </View>

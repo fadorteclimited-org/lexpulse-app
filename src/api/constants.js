@@ -7,4 +7,5 @@ export const ENDPOINTS = {
     favorites: `${APIBASE}api/v1/favorites`,
     tickets: `${APIBASE}api/v1/tickets`,
     following: `${APIBASE}api/v1/following`,
+    notifications: `${APIBASE}api/v1/notifications`,
 };

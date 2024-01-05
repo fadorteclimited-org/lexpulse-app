@@ -12,6 +12,7 @@ import { createMaterialTopTabNavigator } from '@react-navigation/material-top-ta
 import { ENDPOINTS } from '../api/constants';
 import axios from 'axios';
 import All from './All';
+import { AuthContext } from '../../App';
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -142,6 +143,7 @@ export default function Organizer({ route }) {
     const { organizerId } = route.params;
 
     const theme = useContext(themeContext);
+    const { signOut } = React.useContext(AuthContext);
     const navigation = useNavigation();
     
     const [followLoading, onFollowLoading] = useState(false);
@@ -175,6 +177,11 @@ export default function Organizer({ route }) {
                 console.log(error);
                 
                 if (error.response) {
+                    if(error.response.status === 403) {
+                        signOut();
+                        return;
+                    }
+
                     onLoading(false);
                     onError(error.response.data.msg);
                 } else if (error.request) {
@@ -234,6 +241,11 @@ export default function Organizer({ route }) {
             .catch(error => {
             
             if (error.response) {
+                if(error.response.status === 403) {
+                    signOut();
+                    return;
+                }
+
                 console.log(error.response);
                 onFollowLoading(false);
                 onError(error.response.data.error);
@@ -282,6 +294,11 @@ export default function Organizer({ route }) {
             .catch(error => {
             
             if (error.response) {
+                if(error.response.status === 403) {
+                    signOut();
+                    return;
+                }
+
                 console.log(error.response);
                 onFollowLoading(false);
                 onError(error.response.data.error);

@@ -16,6 +16,7 @@ import moment from 'moment';
 import { ENDPOINTS } from '../api/constants';
 import axios from 'axios';
 import RBSheet from 'react-native-raw-bottom-sheet';
+import { AuthContext } from '../../App';
 
 
 const width = Dimensions.get('screen').width
@@ -25,6 +26,7 @@ export default function ReviewSummary({ route }) {
     const { itemObj, ticketQuantities, totalPrice } = route.params;
 
     const theme = useContext(themeContext);
+    const { signOut } = React.useContext(AuthContext);
     const navigation = useNavigation();
     
     const [item, setItem] = useState(itemObj);
@@ -32,12 +34,6 @@ export default function ReviewSummary({ route }) {
 
     const [loading, onLoading] = React.useState(false);
     const [error, onError] = React.useState('');
-
-    console.log(itemObj)
-    console.log('£££££££')
-    console.log(ticketQuantities)
-    console.log('£££££££')
-    console.log(totalPrice)
 
     const saveTicket = async () => {
         const jsonValue = await AsyncStorage.getItem('userDetails');
@@ -70,7 +66,11 @@ export default function ReviewSummary({ route }) {
             .catch(error => {
             
             if (error.response) {
-                console.log(error.response);
+                if(error.response.status === 403) {
+                    signOut();
+                    return;
+                }
+
                 onLoading(false);
                 onError(error.response.data.error);
                 navigation.navigate('FailedBooking');

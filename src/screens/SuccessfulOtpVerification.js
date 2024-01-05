@@ -4,6 +4,7 @@ import { Colors } from '../theme/color'
 import style from '../theme/style'
 import themeContext from '../theme/themeContex'
 import { useNavigation } from '@react-navigation/native';
+import { AuthContext } from '../../App';
 import { AppBar } from '@react-native-material/core';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons'
@@ -16,6 +17,7 @@ const height = Dimensions.get('screen').height
 
 export default function SuccessfulOtpVerification() {
     const theme = useContext(themeContext);
+    const { successfulOtpHome } = React.useContext(AuthContext);
     const navigation = useNavigation();
 
     return (
@@ -27,7 +29,7 @@ export default function SuccessfulOtpVerification() {
                     <Text style={[style.apptitle, { color: Colors.primary, textAlign: 'center', marginTop: 20 }]}>Congratulations!</Text>
                     <Text style={[style.r16, { color: theme.txt, textAlign: 'center', marginTop: 10 }]}>You have successfully been verified! Click the button to go to your home.</Text>
                     <View style={{ marginTop: 20 }}>
-                        <TouchableOpacity onPress={() => { navigation.navigate('Home')} }
+                        <TouchableOpacity onPress={() => successfulOtpHome()}
                             style={style.btn}>
                             <Text style={style.btntxt}>Home</Text>
                         </TouchableOpacity>

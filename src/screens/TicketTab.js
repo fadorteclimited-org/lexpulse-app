@@ -16,6 +16,7 @@ import axios from 'axios';
 import moment from 'moment';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import { color } from 'react-native-elements/dist/helpers';
+import { AuthContext } from '../../App';
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -67,6 +68,7 @@ const Tabs = () => {
 const Upcoming = () => {
 
     const theme = useContext(themeContext);
+    const { signOut } = React.useContext(AuthContext);
     const navigation = useNavigation();
     const [loading, onLoading] = useState(true);
     const [error, onError] = useState('');
@@ -95,6 +97,11 @@ const Upcoming = () => {
                 console.log(error);
                 
                 if (error.response) {
+                    if(error.response.status === 403) {
+                        signOut();
+                        return;
+                    }
+    
                     onLoading(false);
                     onError(error.response.data.msg);
                 } else if (error.request) {
@@ -144,11 +151,11 @@ const Upcoming = () => {
                                         <View style={{ flexDirection: 'row', alignItems: 'center', }}>
                                             <Image source={{ uri: item?.eventId?.image[0] }} resizeMode='stretch' style={{ height: height / 8.5, width: width / 3.6, borderRadius: 10 }} />
                                             <View style={{ marginLeft: 10, }}>
-                                                <Text style={[style.b18, { color: theme.txt, }]}>{item?.eventId.eventName}</Text>
+                                                <Text style={[style.b18, { color: theme.txt, }]}>{item?.eventId?.eventName}</Text>
                                                 <Text style={[style.r12, { color: Colors.primary, marginTop: 8 }]}>{moment.utc(item?.eventId?.eventDate).local().format('dddd, MMMM DD, YYYY')}</Text>
                                                 <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
                                                     <Icon name='location' size={20} color={Colors.primary}></Icon>
-                                                    <Text style={[style.r12, { color: theme.disable2, flex: 1, marginHorizontal: 5, }]}>{item?.eventId.location}</Text>
+                                                    <Text style={[style.r12, { color: theme.disable2, flex: 1, marginHorizontal: 5, }]}>{item?.eventId?.location}</Text>
                                                     <TouchableOpacity style={{ borderColor: Colors.primary, borderWidth: 1, paddingHorizontal: 10, paddingBottom: 6, borderRadius: 10, paddingTop: 4 }}>
                                                         <Text style={[style.r10, { color: Colors.primary }]}>{item.status}</Text>
                                                     </TouchableOpacity>
@@ -253,6 +260,7 @@ const Upcoming = () => {
 const Completed = () => {
 
     const theme = useContext(themeContext);
+    const { signOut } = React.useContext(AuthContext);
     const navigation = useNavigation();
     const [loading, onLoading] = useState(true);
     const [error, onError] = useState('');
@@ -287,6 +295,11 @@ const Completed = () => {
                 console.log(error);
                 
                 if (error.response) {
+                    if(error.response.status === 403) {
+                        signOut();
+                        return;
+                    }
+    
                     onLoading(false);
                     onError(error.response.data.msg);
                 } else if (error.request) {
@@ -336,11 +349,11 @@ const Completed = () => {
                                         <View style={{ flexDirection: 'row', alignItems: 'center', }}>
                                             <Image source={{ uri: item?.eventId?.image[0] }} resizeMode='stretch' style={{ height: height / 8.5, width: width / 3.6 }} />
                                             <View style={{ marginLeft: 10, }}>
-                                                <Text style={[style.b18, { color: theme.txt, }]}>{item?.eventId.eventName}</Text>
+                                                <Text style={[style.b18, { color: theme.txt, }]}>{item?.eventId?.eventName}</Text>
                                                 <Text style={[style.r12, { color: Colors.primary, marginTop: 8 }]}>{moment.utc(item?.eventId?.eventDate).local().format('dddd, MMMM DD, YYYY')}</Text>
                                                 <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
                                                     <Icon name='location' size={20} color={Colors.primary}></Icon>
-                                                    <Text style={[style.r12, { color: theme.disable2, flex: 1, marginHorizontal: 5, }]}>{item?.eventId.location}</Text>
+                                                    <Text style={[style.r12, { color: theme.disable2, flex: 1, marginHorizontal: 5, }]}>{item?.eventId?.location}</Text>
                                                     <TouchableOpacity style={{ borderColor: '#07BD74', borderWidth: 1, paddingHorizontal: 7, paddingBottom: 6, borderRadius: 10, paddingTop: 4 }}>
                                                         <Text style={[style.r10, { color: '#07BD74' }]}>{item.status}</Text>
                                                     </TouchableOpacity>

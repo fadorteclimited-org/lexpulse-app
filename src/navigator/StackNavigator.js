@@ -65,7 +65,6 @@ import SuccessfulBooking from '../screens/SuccessfulBooking';
 import FailedBooking from '../screens/FailedBooking';
 import SuccessfulOtpVerification from '../screens/SuccessfulOtpVerification';
 
-
 const Stack = createNativeStackNavigator();
 
 export default function StackNavigator() {
@@ -172,14 +171,6 @@ export default function StackNavigator() {
           <Stack.Screen
             name="OtpBooking"
             component={OtpBooking}
-            options={{ headerShown: false }} />
-          <Stack.Screen
-            name="SuccessfulBooking"
-            component={SuccessfulBooking}
-            options={{ headerShown: false }} />
-          <Stack.Screen
-            name="FailedBooking"
-            component={FailedBooking}
             options={{ headerShown: false }} />
 
           <Stack.Screen
@@ -306,29 +297,37 @@ export default function StackNavigator() {
             name="Notification"
             component={Notification}
             options={{ headerShown: false }} />
-            <Stack.Screen
+          <Stack.Screen
             name="Profile2"
             component={Profile2}
             options={{ headerShown: false }} />
-             <Stack.Screen
+          <Stack.Screen
             name="Payment"
             component={Payment}
             options={{ headerShown: false }} />
-            <Stack.Screen
+          <Stack.Screen
             name="Linkaccount"
             component={Linkaccount}
             options={{ headerShown: false }} />
-            <Stack.Screen
+          <Stack.Screen
             name="Helpcenter"
             component={Helpcenter}
             options={{ headerShown: false }} />
-            <Stack.Screen
+          <Stack.Screen
             name="Security"
             component={Security}
             options={{ headerShown: false }} />
-            <Stack.Screen
+          <Stack.Screen
             name="Language"
             component={Language}
+            options={{ headerShown: false }} />
+          <Stack.Screen
+            name="SuccessfulBooking"
+            component={SuccessfulBooking}
+            options={{ headerShown: false }} />
+          <Stack.Screen
+            name="FailedBooking"
+            component={FailedBooking}
             options={{ headerShown: false }} />
 
           <Stack.Screen

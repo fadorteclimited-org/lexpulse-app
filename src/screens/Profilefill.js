@@ -12,6 +12,7 @@ import { ENDPOINTS } from '../api/constants';
 import axios from 'axios';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { launchImageLibrary } from 'react-native-image-picker';
+import { AuthContext } from '../../App';
 
 const width = Dimensions.get('screen').width
 const height = Dimensions.get('screen').height
@@ -21,6 +22,7 @@ export default function Profilefill({ route }) {
     const [photo, setPhoto] = React.useState(null);
 
     const theme = useContext(themeContext);
+    const { signOut } = React.useContext(AuthContext);
     const navigation=useNavigation();
     const [isFocused, setIsFocused] = useState(false)
 
@@ -107,6 +109,11 @@ export default function Profilefill({ route }) {
             console.log(error);
             
             if (error.response) {
+              if(error.response.status === 403) {
+                  signOut();
+                  return;
+              }
+
               onLoading(false);
               onError(error.response.data.msg);
             } else if (error.request) {

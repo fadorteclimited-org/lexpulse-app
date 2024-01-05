@@ -20,6 +20,7 @@ import { ENDPOINTS } from '../api/constants';
 import axios from 'axios';
 import moment from 'moment';
 import TopNavigator from '../navigator/TopNavigator'
+import { AuthContext } from '../../App';
 
 const width = Dimensions.get('screen').width
 const height = Dimensions.get('screen').height
@@ -275,6 +276,7 @@ const Favorites = () => {
 
 export default function FCards() {
     const theme = useContext(themeContext);
+    const { signOut } = React.useContext(AuthContext);
     const navigation = useNavigation();
     
     const [loading, onLoading] = useState(true);
@@ -304,6 +306,11 @@ export default function FCards() {
                 console.log(error);
                 
                 if (error.response) {
+                    if(error.response.status === 403) {
+                        signOut();
+                        return;
+                    }
+
                     onLoading(false);
                     onError(error.response.data.msg);
                 } else if (error.request) {
