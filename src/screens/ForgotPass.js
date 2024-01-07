@@ -1,4 +1,4 @@
-import { View, Text ,SafeAreaView, TextInput, StatusBar,TouchableOpacity,Image,ScrollView,Dimensions} from 'react-native'
+import { ActivityIndicator, View, Text ,SafeAreaView, TextInput, StatusBar,TouchableOpacity,Image,ScrollView,Dimensions} from 'react-native'
 import React,{useState,useContext} from 'react'
 import theme from '../theme/theme';
 import themeContext from '../theme/themeContex';
@@ -7,6 +7,8 @@ import { Colors } from '../theme/color';
 import { useNavigation } from '@react-navigation/native';
 import { AppBar, Avatar} from '@react-native-material/core';
 import  Icon  from 'react-native-vector-icons/Ionicons';
+import { ENDPOINTS } from '../api/constants';
+import axios from 'axios';
 
 const width =Dimensions.get('screen').width
 const height = Dimensions.get('screen').height

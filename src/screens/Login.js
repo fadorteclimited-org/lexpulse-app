@@ -177,7 +177,7 @@ export default function Login() {
           </TouchableOpacity>
         </View>
 
-        <View style={{flexDirection:'row',alignItems:'center', justifyContent:'space-between', paddingHorizontal:30,marginVertical:50}}>
+        {/* <View style={{flexDirection:'row',alignItems:'center', justifyContent:'space-between', paddingHorizontal:30,marginVertical:50}}>
               <View style={[style.divider,{flex:1,backgroundColor:theme.border}]}></View>
               <Text style={{color:theme.disable2,fontFamily:'Urbanist-Regular',marginHorizontal:10}}>or continue with</Text>
               <View style={[style.divider,{flex:1,backgroundColor:theme.border}]}></View>
@@ -185,11 +185,11 @@ export default function Login() {
 
         
         <View style={{flexDirection:'row',alignItems:'center', justifyContent:'space-evenly'}}>
-          {/* <TouchableOpacity style={[style.btnoutline,{backgroundColor:theme.borderbg,borderColor:theme.border}]}>
+          <TouchableOpacity style={[style.btnoutline,{backgroundColor:theme.borderbg,borderColor:theme.border}]}>
             <Image source={require('../../assets/image/Fb.png')}
             resizeMode='stretch'
             style={{height:height/25,width:width/11}}></Image>
-          </TouchableOpacity> */}
+          </TouchableOpacity>
           <TouchableOpacity style={[style.btnoutline,{backgroundColor:theme.borderbg,borderColor:theme.border}]}>
             <Image source={require('../../assets/image/Google.png')}
             resizeMode='stretch'
@@ -200,7 +200,7 @@ export default function Login() {
             resizeMode='stretch'
             style={{height:height/25,width:width/11}}></Image>
           </TouchableOpacity>
-        </View>
+        </View> */}
 
         <View style={{flexDirection:'row',justifyContent:'center',paddingTop:30,marginBottom:10}}>
             <Text style={[style.r14,{color:theme.inputtxt}]}>Don't have an account?</Text>

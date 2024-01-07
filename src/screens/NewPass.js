@@ -1,4 +1,4 @@
-import { View, Text, SafeAreaView, TextInput, StatusBar, TouchableOpacity, Image, ScrollView, Dimensions, KeyboardAvoidingView, Modal } from 'react-native'
+import { ActivityIndicator, View, Text, SafeAreaView, TextInput, StatusBar, TouchableOpacity, Image, ScrollView, Dimensions, KeyboardAvoidingView, Modal } from 'react-native'
 import React, { useState, useContext } from 'react'
 import theme from '../theme/theme';
 import themeContext from '../theme/themeContex';
@@ -7,6 +7,8 @@ import { Colors } from '../theme/color';
 import { useNavigation } from '@react-navigation/native';
 import { AppBar, Avatar } from '@react-native-material/core';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { ENDPOINTS } from '../api/constants';
+import axios from 'axios';
 import CheckBox from '@react-native-community/checkbox';
 // import { BallIndicator, } from 'react-native-indicators'
 
@@ -126,6 +128,7 @@ export default function NewPass({ route }) {
                                 onFocus={() => setIsFocused('New Password')}
                                 onBlur={() => setIsFocused(false)}
                                 onChangeText={onChangePassword}
+                                value={password}
                                 selectionColor={Colors.primary}
                                 placeholderTextColor={Colors.disable}
                                 style={[{ paddingHorizontal: 10, color: theme.txt, fontFamily: 'Urbanist-Regular', flex: 1 }]}
@@ -142,6 +145,7 @@ export default function NewPass({ route }) {
                                 onFocus={() => setIsFocused('Confirm Password')}
                                 onBlur={() => setIsFocused(false)}
                                 onChangeText={onChangeCPassword}
+                                value={cPassword}
                                 selectionColor={Colors.primary}
                                 placeholderTextColor={Colors.disable}
                                 style={[{ paddingHorizontal: 10, color: theme.txt, fontFamily: 'Urbanist-Regular', flex: 1 }]}
@@ -202,9 +206,9 @@ export default function NewPass({ route }) {
                     <View style={[style.modalcontainer, { backgroundColor: theme.bg, width: width - 40, borderRadius: 30,marginVertical:120 }]}>
                         <View style={{ marginHorizontal: 20, marginTop: 10 }}>
                             <View style={{alignItems:'flex-end'}}>
-                                <TouchableOpacity onPress={() => { setVisible(false)}}>
-                                <Icon name='close' size={20} color={theme.txt}/>
-                                </TouchableOpacity>
+                                <View>
+                                    <Icon name='close' size={20} color={theme.txt}/>
+                                </View>
                             </View>
                             <Image source={require('../../assets/image/congrats.png')} resizeMode='stretch' style={{ height: height / 5.5, width: width / 2.5, alignSelf: 'center',marginTop:10 }} />
                             <Text style={[style.apptitle, { color: Colors.primary, textAlign: 'center', marginTop: 20 }]}>Congratulations</Text>

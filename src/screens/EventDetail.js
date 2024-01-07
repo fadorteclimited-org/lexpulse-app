@@ -13,6 +13,7 @@ import { ENDPOINTS } from '../api/constants';
 import axios from 'axios';
 import moment from 'moment';
 import { AuthContext } from '../../App';
+import Share from 'react-native-share';
 
 
 const width = Dimensions.get('screen').width
@@ -153,6 +154,19 @@ export default function EventDetail({ route }) {
         }
       };
 
+      const shareEvent = () => {
+        Share.open({
+            message: 'Hey check out this event on Lexpulse',
+            title: 'Sharing'
+        })
+        .then((res) => {
+          console.log(res);
+        })
+        .catch((err) => {
+          err && console.log(err);
+        });
+      };
+
     return (
         <SafeAreaView style={[style.area, { backgroundColor: theme.bg, }]}>
             <StatusBar backgroundColor="transparent" barStyle={'light-content'} translucent={true} />
@@ -174,7 +188,7 @@ export default function EventDetail({ route }) {
                                 <TouchableOpacity onPress={() => setIsVisible(true)}>
                                     <Icon name='heart-outline' color={Colors.secondary} size={25} style={{ }} />
                                 </TouchableOpacity>
-                                <TouchableOpacity style={{ marginLeft: 20 }} onPress={() => this.RBSheet1.open()}>
+                                <TouchableOpacity style={{ marginLeft: 20 }} /* onPress={() => this.RBSheet1.open()} */ onPress={() => shareEvent()}>
                                     <RBSheet ref={ref => {
                                         this.RBSheet1 = ref;
                                     }}
@@ -313,11 +327,11 @@ export default function EventDetail({ route }) {
                     </View>
 
                     <View style={[style.divider1, { backgroundColor: theme.border }]}></View>
-                    <TouchableOpacity onPress={() => navigation.navigate('Organizer',{ organizerId: item.eventHostId._id })}>
+                    <TouchableOpacity onPress={() => navigation.navigate('Organizer',{ organizerId: item.eventHostId?._id })}>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             {
-                                item.eventHostId.image.length > 0 ? (
-                                    <Avatar image={{ uri: item.eventHostId.image[0] }}
+                                item.eventHostId?.image?.length > 0 ? (
+                                    <Avatar image={{ uri: item.eventHostId?.image[0] }}
                                         style={{ backgroundColor: 'transparent' }} size={65}></Avatar>
                                 ) : (
                                     <Avatar image={require('../../assets/image/p6.png')}

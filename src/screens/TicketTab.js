@@ -347,7 +347,7 @@ const Completed = () => {
                                 <View style={{ padding: 5, marginTop: 10 }} key={index}>
                                     <View style={[style.shadow, { backgroundColor: theme.borderbg, backgroundColor: theme.borderbg, borderRadius: 20, padding: 10 }]}>
                                         <View style={{ flexDirection: 'row', alignItems: 'center', }}>
-                                            <Image source={{ uri: item?.eventId?.image[0] }} resizeMode='stretch' style={{ height: height / 8.5, width: width / 3.6 }} />
+                                            <Image source={{ uri: item?.eventId?.image[0] }} resizeMode='stretch' style={{ height: height / 8.5, width: width / 3.6, borderRadius: 10 }} />
                                             <View style={{ marginLeft: 10, }}>
                                                 <Text style={[style.b18, { color: theme.txt, }]}>{item?.eventId?.eventName}</Text>
                                                 <Text style={[style.r12, { color: Colors.primary, marginTop: 8 }]}>{moment.utc(item?.eventId?.eventDate).local().format('dddd, MMMM DD, YYYY')}</Text>

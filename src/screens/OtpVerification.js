@@ -21,6 +21,7 @@ export default function OtpVerification({ route }) {
     const navigation = useNavigation();
 
     const [loading, onLoading] = React.useState(false);
+    const [sendCodeLoading, onSendCodeLoading] = React.useState(false);
     const [error, onError] = React.useState('');
     const [code, onChangeCode] = React.useState('');
 
@@ -52,6 +53,9 @@ export default function OtpVerification({ route }) {
           .then(async (res) => {
             onLoading(false);
             if(fromRoute === 'profile') {
+              const jsonValue = JSON.stringify(res.data);
+  
+              await AsyncStorage.setItem('userDetails', jsonValue);
               navigation.navigate('SuccessfulOtpVerification');
             }
             else if(fromRoute === 'forgotPassword') {
@@ -70,6 +74,48 @@ export default function OtpVerification({ route }) {
               onError('Problem signing in. Please try later!');
             } else {
               onLoading(false);
+              onError('Problem signing in. Please try later!');
+            }
+          });
+          
+        } catch (error) {
+          onLoading(false);
+          console.log(error);
+        }
+      };
+
+      const sendCode = () => {
+        onSendCodeLoading(true);
+
+        try {
+          var config = {
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          };
+      
+          var data = {
+            "email": email
+          };
+          
+          var url = `${ENDPOINTS.login}/reset-password`;
+      
+          axios.post(url, data, config)
+          .then(async (res) => {
+            onSendCodeLoading(false);
+          })
+          .catch(error => {
+            console.log(error);
+            
+            if (error.response) {
+              onSendCodeLoading(false);
+              onError(error.response.data.msg);
+            } else if (error.request) {
+              console.log(error.request);
+              onSendCodeLoading(false);
+              onError('Problem signing in. Please try later!');
+            } else {
+              onSendCodeLoading(false);
               onError('Problem signing in. Please try later!');
             }
           });
@@ -122,11 +168,20 @@ export default function OtpVerification({ route }) {
                         />
                     </View>
 
-                    <View style={{flexDirection:'row',justifyContent:'center',paddingTop:30,marginBottom:10}}>
-                        <Text style={[style.b18, {color:theme.txt}]}>Didn't receive code? </Text>
-                        <TouchableOpacity onPress={()=>navigation.navigate('OtpVerification')}>
-                            <Text style={[style.b18, { color:Colors.primary }]}>Resend it.</Text>
-                        </TouchableOpacity>
+                    <View style={{flexDirection:'row',justifyContent:'center',paddingTop:30,marginBottom:10, marginHorizontal: 50}}>
+                        <Text style={[style.b14, {color:theme.txt}]}>Didn't receive code or code expired? </Text>
+                        {
+                          sendCodeLoading ? (
+                            <View>
+                                <Text style={[style.b14, { color:Colors.primary }]}>Sending...</Text>
+                            </View>
+                          ) : (
+                            <TouchableOpacity onPress={() => sendCode()}>
+                                <Text style={[style.b14, { color:Colors.primary }]}>Get new code.</Text>
+                            </TouchableOpacity>
+                          )
+                        }
+                        
                     </View>
 
                     <View style={{flex:1,justifyContent:'flex-end',marginBottom:20 }}>

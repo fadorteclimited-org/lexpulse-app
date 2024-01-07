@@ -103,7 +103,7 @@ export default function Profile() {
                         <Image source={require('../../assets/image/logo1.png')} resizeMode='stretch' style={{ height: height / 35, width: width / 15 }} />
                         <Text style={[style.apptitle, { color: theme.txt, marginLeft: 10 }]}>Profile</Text>
                     </View>
-                    <TouchableOpacity 
+                    {/* <TouchableOpacity 
                         style={{ flexDirection: 'row', alignItems: 'center' }} 
                         onPress={
                             () => {
@@ -112,13 +112,13 @@ export default function Profile() {
                             }
                         }>
                         {
-                            darkMode === true ? (
-                                <Icon name='moon-outline' color={Colors.active} size={25} style={{ marginRight: 5 }} />
-                            ) : (
+                            darkMode ? (
                                 <Icon name='sunny-outline' color={Colors.secondary} size={25} style={{ marginRight: 5 }} />
+                            ) : (
+                                <Icon name='moon-outline' color={Colors.active} size={25} style={{ marginRight: 5 }} />
                             )
                         }
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
                 </View>
                 {
                     loading ? (
@@ -244,7 +244,7 @@ export default function Profile() {
                             <Text style={[style.b18, { color: theme.txt, marginLeft: 10, marginRight: 5 }]}>English(US)</Text>
                             <Icons name='chevron-right' color={theme.txt} size={30} />
                         </View>
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
 
                     <TouchableOpacity style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
                         <View style={{ flexDirection: 'row' }}>
@@ -263,7 +263,7 @@ export default function Profile() {
                             />
                         </View>
 
-                    </TouchableOpacity> */}
+                    </TouchableOpacity>
 
                     <TouchableOpacity onPress={() => navigation.navigate('Helpcenter')}
                         style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>

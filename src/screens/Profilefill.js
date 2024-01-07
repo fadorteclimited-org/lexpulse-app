@@ -30,6 +30,7 @@ export default function Profilefill({ route }) {
     const [error, onError] = React.useState('');
     const [firstName, onChangeFirstName] = React.useState('');
     const [lastName, onChangeLastName] = React.useState('');
+    const [username, onChangeUsername] = React.useState('');
 
     const [openGender, setOpenGender] = useState(false);
     const [valueGender, setValueGender] = useState(null);
@@ -70,6 +71,7 @@ export default function Profilefill({ route }) {
         if(photo === null || 
           firstName === '' || 
           lastName === '' || 
+          username === '' || 
           valueGender === null) {
           onError('Please make sure all fields are filled out and update your profile pic.');
           onLoading(false);
@@ -87,6 +89,7 @@ export default function Profilefill({ route }) {
             "firstName": firstName,
             "lastName": lastName,
             "email": email,
+            "username": username,
             "country": country,
             "gender": valueGender,
             "password": password,
@@ -100,13 +103,12 @@ export default function Profilefill({ route }) {
           axios.post(url, data, config)
           .then(async (res) => {
             onLoading(false);
-            const jsonValue = JSON.stringify(res.data);
+            // const jsonValue = JSON.stringify(res.data);
 
-            await AsyncStorage.setItem('userDetails', jsonValue);
+            // await AsyncStorage.setItem('userDetails', jsonValue);
             navigation.navigate('OtpVerification', { email: email, fromRoute: 'profile' });
           })
           .catch(error => {
-            console.log(error);
             
             if (error.response) {
               if(error.response.status === 403) {
@@ -187,6 +189,17 @@ export default function Profilefill({ route }) {
                     onFocus={() => setIsFocused('Last Name')}
                     onBlur={() => setIsFocused(false)}
                     onChangeText={onChangeLastName}
+                    placeholderTextColor={Colors.disable}
+                    style={[{paddingHorizontal:10,color:theme.txt,fontFamily:'Urbanist-Regular',flex:1}]}
+            />
+            </View>
+
+            <View style={[style.txtinput,{borderColor: isFocused === 'Username' ? Colors.primary : theme.input,backgroundColor: isFocused==='Username' ?'#584CF410': theme.input,marginTop:20}]}>
+            <TextInput placeholder='Username (eg. malvinray)'
+                    selectionColor={Colors.primary}
+                    onFocus={() => setIsFocused('Username')}
+                    onBlur={() => setIsFocused(false)}
+                    onChangeText={onChangeUsername}
                     placeholderTextColor={Colors.disable}
                     style={[{paddingHorizontal:10,color:theme.txt,fontFamily:'Urbanist-Regular',flex:1}]}
             />

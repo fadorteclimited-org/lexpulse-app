@@ -340,7 +340,7 @@ export default function FCards() {
         };
     
         fetchDataAndHandleErrors();
-    }, []);
+    }, [fetchData]);
   
     return (
         <SafeAreaView style={[style.area, { backgroundColor: theme.bg }]}>
@@ -374,7 +374,6 @@ export default function FCards() {
                                     
                                     {
                                         list.map((item, index) => (
-                                            <>
                                             <TouchableOpacity style={[{ padding: 5, width: "50%" }]} key={index} activeOpacity={0.9} onPress={() => navigation.navigate('EventDetail', { itemObj: item.eventId })}>
                                                 <View style={[style.shadow, { padding: 10, backgroundColor: theme.borderbg, borderRadius: 15 }]}>
                                                     <ImageBackground source={{ uri: item.eventId.image[0] }}
@@ -392,7 +391,6 @@ export default function FCards() {
                                                     </View>
                                                 </View>
                                             </TouchableOpacity>
-                                            </>
                                         ))
                                     }
                                 </View>

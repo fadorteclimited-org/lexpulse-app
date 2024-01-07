@@ -41,6 +41,10 @@ export default function Home() {
     const [error, onError] = useState('');
     const [list, setList] = useState([]);
 
+    const [currentPage, setCurrentPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
+    const [hasMoreLoading, setHasMoreLoading] = useState(false);
+
     const fetchData = async () => {
         const jsonValue = await AsyncStorage.getItem('userDetails');
         const parsedValue = JSON.parse(jsonValue);
@@ -53,12 +57,13 @@ export default function Home() {
                 }
             };
             
-            var url = `${ENDPOINTS.events + (parsedValue.user.country ? (`?country=${parsedValue.user.country}`) : (``))}`;
-        
+            var url = `${ENDPOINTS.events + `?page=${currentPage}` + (parsedValue.user.country ? (`&country=${parsedValue.user.country}`) : (``))}`;
+
             axios.get(url, config)
             .then((res) => {
                 onLoading(false);
                 setList(res.data.data);
+                setHasMore(res.data.hasMore);
                 setValue(parsedValue.user.country);
             })
             .catch(error => {
@@ -116,6 +121,58 @@ export default function Home() {
     
         fetchUserDetails();
     }, []);
+
+    const loadMoreEvents = async () => {
+        try {
+            setHasMoreLoading(true);
+
+            const jsonValue = await AsyncStorage.getItem('userDetails');
+            const parsedValue = JSON.parse(jsonValue);
+
+            var config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${parsedValue.token}`
+                }
+            };
+
+            var url = `${ENDPOINTS.events + `?page=${currentPage +1}` + (parsedValue.user.country ? (`&country=${parsedValue.user.country}`) : (``))}`;
+
+            const res = await axios.get(url, config);
+
+            if (res.data.data.length > 0) {
+                setList(prevList => [...prevList, ...res.data.data]);
+                setCurrentPage(prevPage => prevPage + 1);
+                setHasMoreLoading(false);
+            } else {
+                setHasMore(false);
+                setHasMoreLoading(false);
+            }
+        } catch (error) {
+            console.log(error);
+
+            if (error.response) {
+                if(error.response.status === 403) {
+                    signOut();
+                    return;
+                }
+
+                onLoading(false);
+                setHasMoreLoading(false);
+                onError(error.response.data.msg);
+                console.log(error.response.status);
+            } else if (error.request) {
+                console.log(error.request);
+                onLoading(false);
+                setHasMoreLoading(false);
+                onError('Problem signing in. Please try later!');
+            } else {
+                onLoading(false);
+                setHasMoreLoading(false);
+                onError('Problem signing in. Please try later!');
+            }
+        }
+    };
 
     const getNewCountryEvents = async (country) => {
         onLoading(true);
@@ -287,29 +344,45 @@ export default function Home() {
 
                     {
                         list.length > 0 ? (
-                            <View style={{flexDirection:'row', flexWrap: 'wrap', width: '100%'}}>
-                                {
-                                    list.map((item, index) => (
-                                        <TouchableOpacity style={[{padding:5, width: "50%"}]} activeOpacity={0.9} key={index} onPress={() => navigation.navigate('EventDetail', { itemObj: item })}>
-                                            <View style={[style.shadow,{padding:10,backgroundColor:theme.borderbg,borderRadius:15, flex: 1}]}>
-                                                <ImageBackground source={{ uri: item.image[0] }}
-                                                resizeMode='stretch'
-                                                imageStyle={{ borderRadius: 20}}
-                                                style={{height: height/6}}></ImageBackground>
-                                                <Text style={[style.b18,{color:theme.txt,marginTop:5}]}>{item.eventName}</Text>
-                                                <Text style={[style.r12,{color:Colors.primary,marginVertical:5}]}>{moment.utc(item.eventDate).local().format('MMM DD, YYYY')}</Text>
-                                                <View style={{flexDirection:'row',alignItems:'center',}}>
-                                                    <Icon name='location' size={20} color={Colors.primary}></Icon>
-                                                    <Text style={[style.r12,{color:theme.disable2,flex:1,marginHorizontal:10,}]}>{item.location ? (item.location.length > 10 ? `${item.location.substring(0, 10)}...` : item.location) : 'No Location'}</Text>
-                                                    <View>
-                                                    <Icon name='list-circle-outline' size={20} color={Colors.primary}></Icon>
+                            <>
+                                <View style={{flexDirection:'row', flexWrap: 'wrap', width: '100%'}}>
+                                    {
+                                        list.map((item, index) => (
+                                            <TouchableOpacity style={[{padding:5, width: "50%"}]} activeOpacity={0.9} key={index} onPress={() => navigation.navigate('EventDetail', { itemObj: item })}>
+                                                <View style={[style.shadow,{padding:10,backgroundColor:theme.borderbg,borderRadius:15, flex: 1}]}>
+                                                    <ImageBackground source={{ uri: item.image[0] }}
+                                                    resizeMode='stretch'
+                                                    imageStyle={{ borderRadius: 20}}
+                                                    style={{height: height/6}}></ImageBackground>
+                                                    <Text style={[style.b18,{color:theme.txt,marginTop:5}]}>{item.eventName}</Text>
+                                                    <Text style={[style.r12,{color:Colors.primary,marginVertical:5}]}>{moment.utc(item.eventDate).local().format('MMM DD, YYYY')}</Text>
+                                                    <View style={{flexDirection:'row',alignItems:'center',}}>
+                                                        <Icon name='location' size={20} color={Colors.primary}></Icon>
+                                                        <Text style={[style.r12,{color:theme.disable2,flex:1,marginHorizontal:10,}]}>{item.location ? (item.location.length > 10 ? `${item.location.substring(0, 10)}...` : item.location) : 'No Location'}</Text>
+                                                        <View>
+                                                        <Icon name='list-circle-outline' size={20} color={Colors.primary}></Icon>
+                                                        </View>
                                                     </View>
                                                 </View>
-                                            </View>
+                                            </TouchableOpacity>
+                                        ))
+                                    }
+                                </View>
+
+                                {hasMore && (
+                                    hasMoreLoading ? (
+                                        <TouchableOpacity 
+                                            style={style.btn}>
+                                            <ActivityIndicator size="small" color="#ffffff" />
                                         </TouchableOpacity>
-                                    ))
-                                }
-                            </View>
+                                    ) : (
+                                        <TouchableOpacity onPress={() => loadMoreEvents()} 
+                                            style={style.btn}>
+                                            <Text style={style.btntxt}>Load More</Text>
+                                        </TouchableOpacity>
+                                    )
+                                )}
+                            </>
                         ) : (
                             <View style={{ height: '80%', width: '100%', alignItems: 'center' }}>
                                 <Image source={require('../../assets/image/noevents.png')} resizeMode='stretch' style={{width:width/1.5, height:height/4.2, marginTop: '30%' }}></Image>
