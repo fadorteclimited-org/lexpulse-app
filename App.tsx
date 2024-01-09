@@ -69,6 +69,11 @@ import BottomNavigator from './src/navigator/BottomNavigator';
 
 import { ENDPOINTS } from './src/api/constants';
 import axios from 'axios';
+import * as Sentry from '@sentry/react-native';
+
+Sentry.init({
+  dsn: 'https://021dd5c8b593e9f08ce79d3bb156fed8@o4506533294768128.ingest.sentry.io/4506533355388928',
+});
 
 const Stack = createNativeStackNavigator();
 export const AuthContext = createContext();
@@ -205,7 +210,7 @@ export default function App({ navigation }) {
         
       },
       signOut: async () => {
-        AsyncStorage.removeItem('userDetails');
+        await AsyncStorage.removeItem('userDetails');
         dispatch({ type: 'SIGN_OUT' });
       },
       successfulOtpHome: async () => {

@@ -1,4 +1,4 @@
-import { View, Text ,SafeAreaView, TextInput, StatusBar,TouchableOpacity,Image,ScrollView,Dimensions} from 'react-native'
+import { View, Text ,SafeAreaView, TextInput, StatusBar,TouchableOpacity,Image,ScrollView,Dimensions, Linking} from 'react-native'
 import React,{useState,useContext} from 'react'
 import theme from '../theme/theme';
 import themeContext from '../theme/themeContex';
@@ -68,7 +68,7 @@ const About = () => {
             <View style={{padding:5,marginTop:10}}>
                 <View style={[style.shadow,{backgroundColor:theme.bg,padding:20,borderRadius:20}]}>
                     <View style={{alignItems:'center'}}>
-                        <Image source={require('../../assets/image/logo1.png')} resizeMode='stretch' style={{ height: height / 35, width: width / 15, marginVertical: 10 }} />
+                        <Image source={require('../../assets/image/logo1.png')} resizeMode='stretch' style={{ height: height / 30, width: width / 15, marginVertical: 10 }} />
                         <Text style={[style.b18,{color:theme.txt}]}>Lexpulse</Text>
                         {/* <Icons name='chevron-right' color={theme.txt} size={30} /> */}
                     </View>
@@ -78,21 +78,21 @@ const About = () => {
             </View>
 
             <View style={{padding:5,marginTop:10}}>
-                <View style={[style.shadow,{backgroundColor:theme.bg,padding:15,borderRadius:10,flexDirection:'row',alignItems:'center',justifyContent:'space-between'}]}>
+                <TouchableOpacity style={[style.shadow,{backgroundColor:theme.bg,padding:15,borderRadius:10,flexDirection:'row',alignItems:'center',justifyContent:'space-between'}]} activeOpacity={0.9} onPress={() => { Linking.openURL("https://lexpulse.app/terms.html") }}>
                     <Text style={[style.b18,{color:theme.txt,flex:1}]}>Terms and Conditions</Text>
                     <View>
                     <Icons name='chevron-right' color={theme.txt} size={30} />
                     </View>
-                </View>
+                </TouchableOpacity>
             </View>
 
             <View style={{padding:5,marginTop:10}}>
-                <View style={[style.shadow,{backgroundColor:theme.bg,padding:15,borderRadius:10,flexDirection:'row',alignItems:'center',justifyContent:'space-between'}]}>
+                <TouchableOpacity style={[style.shadow,{backgroundColor:theme.bg,padding:15,borderRadius:10,flexDirection:'row',alignItems:'center',justifyContent:'space-between'}]} activeOpacity={0.9} onPress={() => { Linking.openURL("https://lexpulse.app/privacy.html") }}>
                     <Text style={[style.b18,{color:theme.txt,flex:1}]}>Privacy Policy</Text>
                     <View>
                     <Icons name='chevron-right' color={theme.txt} size={30} />
                     </View>
-                </View>
+                </TouchableOpacity>
             </View>
 
             <View style={{padding:5,marginTop:10}}>
@@ -212,10 +212,10 @@ const Contactus = () => {
         <SafeAreaView style={[style.area,{backgroundColor:theme.bg,}]}>
             <ScrollView nestedScrollEnabled={true} showsVerticalScrollIndicator={false}>
             <View style={{padding:5,marginTop:10}}>
-                <View style={[style.shadow,{backgroundColor:theme.bg,padding:15,borderRadius:10,flexDirection:'row',alignItems:'center',justifyContent:'space-between'}]}>
+                <TouchableOpacity style={[style.shadow,{backgroundColor:theme.bg,padding:15,borderRadius:10,flexDirection:'row',alignItems:'center',justifyContent:'space-between'}]} activeOpacity={0.9} onPress={() => { Linking.openURL("maito:thelexpulseteam@fadorteclimited.com") }}>
                     <Icon name='mail-outline' size={27} color={Colors.primary}></Icon>
                     <Text style={[style.b18,{color:theme.txt,flex:1,marginLeft:10}]}>Email</Text>
-                </View>
+                </TouchableOpacity>
             </View>
             {/* <View style={{padding:5,marginTop:10}}>
                 <View style={[style.shadow,{backgroundColor:theme.bg,padding:15,borderRadius:10,flexDirection:'row',alignItems:'center',justifyContent:'space-between'}]}>
@@ -224,10 +224,10 @@ const Contactus = () => {
                 </View>
             </View> */}
             <View style={{padding:5,marginTop:10}}>
-                <View style={[style.shadow,{backgroundColor:theme.bg,padding:15,borderRadius:10,flexDirection:'row',alignItems:'center',justifyContent:'space-between'}]}>
+                <TouchableOpacity style={[style.shadow,{backgroundColor:theme.bg,padding:15,borderRadius:10,flexDirection:'row',alignItems:'center',justifyContent:'space-between'}]} activeOpacity={0.9} onPress={() => { Linking.openURL("https://lexpulse.app") }}>
                     <Icon name='globe-outline' size={27} color={Colors.primary}></Icon>
                     <Text style={[style.b18,{color:theme.txt,flex:1,marginLeft:10}]}>Website</Text>
-                </View>
+                </TouchableOpacity>
             </View>
             {/* <View style={{padding:5,marginTop:10}}>
                 <View style={[style.shadow,{backgroundColor:theme.bg,padding:15,borderRadius:10,flexDirection:'row',alignItems:'center',justifyContent:'space-between'}]}>
@@ -242,10 +242,10 @@ const Contactus = () => {
                 </View>
             </View> */}
             <View style={{padding:5,marginTop:10}}>
-                <View style={[style.shadow,{backgroundColor:theme.bg,padding:15,borderRadius:10,flexDirection:'row',alignItems:'center',justifyContent:'space-between'}]}>
+                <TouchableOpacity style={[style.shadow,{backgroundColor:theme.bg,padding:15,borderRadius:10,flexDirection:'row',alignItems:'center',justifyContent:'space-between'}]} activeOpacity={0.9} onPress={() => { Linking.openURL("https://instagram.com/lexpulseapp") }}>
                     <Icon name='logo-instagram' size={27} color={Colors.primary}></Icon>
                     <Text style={[style.b18,{color:theme.txt,flex:1,marginLeft:10}]}>Instagram</Text>
-                </View>
+                </TouchableOpacity>
             </View>
             </ScrollView>
         </SafeAreaView>

@@ -31,6 +31,7 @@ export default function Profile() {
     const [loading, onLoading] = useState(true);
     const [error, onError] = useState('');
     const [profile, setProfile] = useState({});
+    const [isvisible, setIsVisible] = useState(false)
 
     const fetchData = async () => {
         const jsonValue = await AsyncStorage.getItem('userDetails');
@@ -283,6 +284,15 @@ export default function Profile() {
                         <Icons name='chevron-right' color={theme.txt} size={30} />
                     </TouchableOpacity>
 
+                    <TouchableOpacity onPress={() => setIsVisible(true)}
+                        style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                        <View style={{ flexDirection: 'row' }}>
+                            <Icons name='logout' size={25} color="#F75555" />
+                            <Text style={[style.b18, { color: '#F75555', marginLeft: 10 }]}>Log Out</Text>
+                        </View>
+                        {/* <Icons name='chevron-right' color={theme.txt} size={30} /> */}
+                    </TouchableOpacity>
+
                     {/* <TouchableOpacity
                         style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 15 }}>
                         <View style={{ flexDirection: 'row' }}>
@@ -290,7 +300,7 @@ export default function Profile() {
                             <Text style={[style.b18, { color: theme.txt, marginLeft: 10 }]}>Rate Us</Text>
                         </View>
                         <Icons name='chevron-right' color={theme.txt} size={30} />
-                    </TouchableOpacity> */}
+                    </TouchableOpacity>
 
                     <TouchableOpacity onPress={() => this.RBSheet8.open()}
                         style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 90 }}>
@@ -331,8 +341,41 @@ export default function Profile() {
                             <Icons name='logout' size={25} color="#F75555" />
                             <Text style={[style.b18, { color: '#F75555', marginLeft: 10 }]}>Log Out</Text>
                         </View>
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
                 </ScrollView>
+
+                <Modal transparent={true} visible={isvisible}>
+                    <View style={{
+                        flex: 1,
+                        backgroundColor: '#000000aa',
+                        transparent: 'true'
+                    }}>
+                        <View style={[style.modalcontainer, { backgroundColor: theme.bg, width: width - 40, borderRadius: 30 ,marginVertical:110}]}>
+                            <View style={{ marginHorizontal: 20, marginTop: 10 }}>
+                                <View style={{ alignItems: 'flex-end' }}>
+                                    <TouchableOpacity onPress={() => { setIsVisible(false) }}>
+                                        <Icon name='close' size={20} color={theme.txt} />
+                                    </TouchableOpacity>
+                                </View>
+                                <Image source={require('../../assets/image/logout.png')} resizeMode='stretch' style={{ height: height / 5.5, width: width / 2.5, alignSelf: 'center', marginTop: 10 }} />
+                                <Text style={[style.apptitle, { color: Colors.primary, textAlign: 'center', marginTop: 20 }]}>See you soon!</Text>
+                                <Text style={[style.r16, { color: theme.txt, textAlign: 'center', marginTop: 10 }]}>Are you sure you want to log out?</Text>
+                                <View style={{ marginTop: 20 }}>
+                                    <TouchableOpacity onPress={() => {setIsVisible(false), signOut()}}
+                                        style={style.btn}>
+                                        <Text style={style.btntxt}>Yes, Logout</Text>
+                                    </TouchableOpacity>
+                                </View>
+                                <View style={{ marginTop: 20 }}>
+                                    <TouchableOpacity onPress={() => setIsVisible(false)}
+                                        style={[style.btn,{backgroundColor:theme.btn}]}>
+                                        <Text style={[style.btntxt,{color:Colors.primary}]}>Cancel</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        </View>
+                    </View>
+                </Modal>
 
 
             </View>
