@@ -96,6 +96,15 @@ const About = () => {
             </View>
 
             <View style={{padding:5,marginTop:10}}>
+                <TouchableOpacity style={[style.shadow,{backgroundColor:theme.bg,padding:15,borderRadius:10,flexDirection:'row',alignItems:'center',justifyContent:'space-between'}]} activeOpacity={0.9} onPress={() => { Linking.openURL("https://lexpulse.app/datadeletion.html") }}>
+                    <Text style={[style.b18,{color: '#F75555',flex:1}]}>Delete my account / data</Text>
+                    <View>
+                    <Icons name='chevron-right' color={theme.txt} size={30} />
+                    </View>
+                </TouchableOpacity>
+            </View>
+
+            <View style={{padding:5,marginTop:10}}>
                 <View style={{backgroundColor:theme.bg,padding:15,borderRadius:10,alignItems:'center'}}>
                     <Text style={[style.b10,{color:theme.txt,}]}>Version 1.0.0</Text>
                 </View>
