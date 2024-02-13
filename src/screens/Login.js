@@ -106,28 +106,29 @@ export default function Login() {
         </View>      
 
         <View style={[style.inputContainer,{marginTop:20,borderColor: isFocused === 'Email' ? Colors.primary : theme.input,borderWidth:1,backgroundColor: isFocused==='Email' ?'#584CF410': theme.input}]}>
-        <Icon name='mail' size={25} color={isFocused==='Email' ?'#584CF4': Colors.disable}></Icon>
-                    <TextInput placeholder='Email'
+          <Icon name='mail' size={25} color={isFocused==='Email' ?'#584CF4': Colors.disable}></Icon>
+                  <TextInput placeholder='Email'
                     keyboardType='email-address'
                     selectionColor={Colors.primary}
                     onFocus={() => setIsFocused('Email')}
                     onBlur={() => setIsFocused(false)}
                     onChangeText={onChangeEmail}
+                    autoCapitalize='none'
                     placeholderTextColor={Colors.disable}
                     style={[{paddingHorizontal:10,color:theme.txt,fontFamily:'Urbanist-Regular',flex:1}]}
                     />
         </View>
 
         <View style={[style.inputContainer,{borderColor: isFocused==='Password' ? Colors.primary : theme.input,borderWidth:1,backgroundColor: isFocused==='Password' ?'#584CF410': theme.input}]}>
-        <Icon name='lock-closed' size={25} color={isFocused==='Password' ?'#584CF4': Colors.disable}></Icon>
+          <Icon name='lock-closed' size={25} color={isFocused==='Password' ?'#584CF4': Colors.disable}></Icon>
             <TextInput placeholder='Password'
-            secureTextEntry={!isPasswordVisible}
-            onFocus={() => setIsFocused('Password')}
-            onBlur={() => setIsFocused(false)}
-            onChangeText={onChangePassword}
-            selectionColor={Colors.primary}
-            placeholderTextColor={Colors.disable}
-            style={[{paddingHorizontal:10,color:theme.txt,fontFamily:'Urbanist-Regular',flex:1}]}
+              secureTextEntry={!isPasswordVisible}
+              onFocus={() => setIsFocused('Password')}
+              onBlur={() => setIsFocused(false)}
+              onChangeText={onChangePassword}
+              selectionColor={Colors.primary}
+              placeholderTextColor={Colors.disable}
+              style={[{paddingHorizontal:10,color:theme.txt,fontFamily:'Urbanist-Regular',flex:1}]}
             />
             <TouchableOpacity onPress={() => setIsPasswordVisible(!isPasswordVisible)} >
                 <Icon name={isPasswordVisible ? 'eye-off' : 'eye'} color={isFocused==='Password' ?'#584CF4': Colors.disable} size={20} />

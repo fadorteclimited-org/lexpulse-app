@@ -1,4 +1,4 @@
-import { ActivityIndicator, View, Text ,SafeAreaView, TextInput, StatusBar,TouchableOpacity,Image,ScrollView,Dimensions,KeyboardAvoidingView} from 'react-native'
+import { ActivityIndicator, View, Text ,SafeAreaView, TextInput, StatusBar, TouchableOpacity,Image,ScrollView,Dimensions,KeyboardAvoidingView} from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React,{useState,useContext,useCallback} from 'react'
 import theme from '../theme/theme';
@@ -12,6 +12,7 @@ import  Icon  from 'react-native-vector-icons/Ionicons';
 import { ENDPOINTS } from '../api/constants';
 import axios from 'axios';
 import DropDownPicker from 'react-native-dropdown-picker';
+import { Dropdown } from 'react-native-element-dropdown';
 
 
 const width = Dimensions.get('screen').width
@@ -87,6 +88,7 @@ export default function Signup() {
                     onFocus={() => setIsFocused('Email')}
                     onBlur={() => setIsFocused(false)}
                     onChangeText={onChangeEmail}
+                    autoCapitalize='none'
                     placeholderTextColor={Colors.disable}
                     style={[{paddingHorizontal:10,color:theme.txt,fontFamily:'Urbanist-Regular',flex:1}]}
                     />
@@ -109,7 +111,7 @@ export default function Signup() {
         </View>
 
         <View style={[style.txtinput,{borderColor: isFocused === 'Country' ? Colors.primary : theme.input,backgroundColor: isFocused ==='Country' ?'#584CF410': theme.input,marginTop:10}]}>
-            <DropDownPicker
+            {/* <DropDownPicker
                 open={open}
                 value={value}
                 items={items}
@@ -118,6 +120,24 @@ export default function Signup() {
                 setItems={setItems}
                 placeholder="Select your country"
                 style={{ borderColor: isFocused === 'Country' ? Colors.primary : theme.input, backgroundColor: isFocused ==='Country' ?'#584CF410': theme.input }}
+            /> */}
+            <Dropdown
+                style={{ backgroundColor: '#FAFAFA', padding: 10, borderRadius: 10 }}
+                /* placeholderStyle={styles.placeholderStyle}
+                selectedTextStyle={styles.selectedTextStyle}
+                inputSearchStyle={styles.inputSearchStyle}
+                iconStyle={styles.iconStyle} */
+                data={items}
+                // search
+                maxHeight={300}
+                labelField="label"
+                valueField="value"
+                placeholder="Select item"
+                // searchPlaceholder="Search..."
+                value={value}
+                onChange={item => {
+                    setValue(item.value);
+                }}
             />
         </View>
 

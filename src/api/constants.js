@@ -1,4 +1,5 @@
-const APIBASE = `https://api-staging.lexpulse.app/`;
+// const APIBASE = `https://api-staging.lexpulse.app/`;
+const APIBASE = `http://127.0.0.1:4500/`;
 
 export const ENDPOINTS = {
     signup: `${APIBASE}api/v1/users`,

@@ -16,6 +16,8 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import { color } from 'react-native-elements/dist/helpers';
 import TopNavigator from '../navigator/TopNavigator';
 import { AuthContext } from '../../App';
+import {Picker} from '@react-native-picker/picker';
+import { Dropdown } from 'react-native-element-dropdown';
 // import Demo from './Demo';
 const width =Dimensions.get('screen').width
 const height = Dimensions.get('screen').height
@@ -36,6 +38,7 @@ export default function Home() {
         {label: 'Nigeria', value: 'Nigeria'},
         {label: 'South Africa', value: 'South Africa'}
     ]);
+    const [selectedLanguage, setSelectedLanguage] = useState();
     
     const [loading, onLoading] = useState(true);
     const [error, onError] = useState('');
@@ -252,7 +255,15 @@ export default function Home() {
                 <Text style={[style.subtitle,{color:theme.txt}]}>Seeing 🔥 Events in</Text>
             </View>
             <View style={{ width: '50%' }}>
-                <DropDownPicker
+                {/* <Picker
+                    selectedValue={selectedLanguage}
+                    onValueChange={(itemValue, itemIndex) =>
+                        setSelectedLanguage(itemValue)
+                    }>
+                    <Picker.Item label="Java" value="java" />
+                    <Picker.Item label="JavaScript" value="js" />
+                </Picker> */}
+                {/* <DropDownPicker
                     open={open}
                     value={value}
                     items={items}
@@ -262,6 +273,25 @@ export default function Home() {
                     onSelectItem={(item) => getNewCountryEvents(item)}
                     placeholder="Select a country"
                     style={{ borderColor: '#9E9E9E' }}
+                /> */}
+                <Dropdown
+                    style={{ backgroundColor: '#f6f6f6', padding: 10, borderRadius: 10 }}
+                    /* placeholderStyle={styles.placeholderStyle}
+                    selectedTextStyle={styles.selectedTextStyle}
+                    inputSearchStyle={styles.inputSearchStyle}
+                    iconStyle={styles.iconStyle} */
+                    data={items}
+                    // search
+                    maxHeight={300}
+                    labelField="label"
+                    valueField="value"
+                    placeholder="Select item"
+                    // searchPlaceholder="Search..."
+                    value={value}
+                    onChange={item => {
+                        setValue(item.value);
+                        getNewCountryEvents(item);
+                    }}
                 />
             </View>
         </View>

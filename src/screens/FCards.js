@@ -376,15 +376,15 @@ export default function FCards() {
                                         list.map((item, index) => (
                                             <TouchableOpacity style={[{ padding: 5, width: "50%" }]} key={index} activeOpacity={0.9} onPress={() => navigation.navigate('EventDetail', { itemObj: item.eventId })}>
                                                 <View style={[style.shadow, { padding: 10, backgroundColor: theme.borderbg, borderRadius: 15 }]}>
-                                                    <ImageBackground source={{ uri: item.eventId.image[0] }}
+                                                    <ImageBackground source={{ uri: item?.eventId?.image[0] }}
                                                         resizeMode='stretch'
                                                         imageStyle={{ borderRadius: 20 }}
                                                         style={{ height: height / 6 }}></ImageBackground>
-                                                    <Text style={[style.b18, { color: theme.txt, marginTop: 5 }]}>{item.eventId.eventName}</Text>
+                                                    <Text style={[style.b18, { color: theme.txt, marginTop: 5 }]}>{item?.eventId?.eventName}</Text>
                                                     <Text style={[style.r12, { color: Colors.primary, marginVertical: 5 }]}>{moment.utc(item.eventId.eventDate).local().format('MMM DD, YYYY')}</Text>
                                                     <View style={{ flexDirection: 'row', alignItems: 'center', }}>
                                                         <Icon name='location' size={20} color={Colors.primary}></Icon>
-                                                        <Text style={[style.r12,{color:theme.disable2,flex:1,marginHorizontal:10,}]}>{item.eventId.location ? (item.eventId.location.length > 10 ? `${item.eventId.location.substring(0, 10)}...` : item.eventId.location) : 'No Location'}</Text>
+                                                        <Text style={[style.r12,{color:theme.disable2,flex:1,marginHorizontal:10,}]}>{item.eventId.location ? (item?.eventId?.location.length > 10 ? `${item?.eventId?.location.substring(0, 10)}...` : item.eventId.location) : 'No Location'}</Text>
                                                         <View>
                                                             <Icon name='list-circle-outline' size={20} color={Colors.primary}></Icon>
                                                         </View>

@@ -110,7 +110,7 @@ export default function Introduction() {
     };
 
     return (
-        <SafeAreaView style={{ flex: 1 }}>
+        <SafeAreaView style={{ backgroundColor: '#fff', flex: 1 }}>
             <FlatList data={Slides}
                 ref={ref}
                 renderItem={({ item }) => <IntroItem item={item} />}
