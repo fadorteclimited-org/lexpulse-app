@@ -82,7 +82,7 @@ export default function Signup() {
 
         <View style={[style.inputContainer,{marginTop:20,borderColor: isFocused === 'Email' ? Colors.primary : theme.input,borderWidth:1,backgroundColor: isFocused==='Email' ?'#584CF410': theme.input}]}>
         <Icon name='mail' size={25} color={isFocused==='Email' ?'#584CF4': Colors.disable}></Icon>
-                    <TextInput placeholder='Email'
+                <TextInput placeholder='Email'
                     keyboardType='email-address'
                     selectionColor={Colors.primary}
                     onFocus={() => setIsFocused('Email')}
@@ -132,7 +132,7 @@ export default function Signup() {
                 maxHeight={300}
                 labelField="label"
                 valueField="value"
-                placeholder="Select item"
+                placeholder="Select your country"
                 // searchPlaceholder="Search..."
                 value={value}
                 onChange={item => {

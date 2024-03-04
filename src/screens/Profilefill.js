@@ -49,14 +49,14 @@ export default function Profilefill({ route }) {
       });
     };
 
-    const createFormData = (photo, body = {}) => {
+    const createFormData = (/* photo,  */body = {}) => {
       const data = new FormData();
     
-      data.append('image', {
+      /* data.append('image', {
         name: photo[0].fileName,
         type: photo[0].type,
         uri: Platform.OS === 'ios' ? photo[0].uri.replace('file://', '') : photo[0].uri,
-      });
+      }); */
     
       Object.keys(body).forEach((key) => {
         data.append(key, body[key]);
@@ -68,11 +68,9 @@ export default function Profilefill({ route }) {
     const fillProfile = async () => {
         onLoading(true);
 
-        if(photo === null || 
-          firstName === '' || 
+        if(firstName === '' || 
           lastName === '' || 
-          username === '' || 
-          valueGender === null) {
+          username === '') {
           onError('Please make sure all fields are filled out and update your profile pic.');
           onLoading(false);
           return;
@@ -96,7 +94,7 @@ export default function Profilefill({ route }) {
             "userType": "attendee"
           };
 
-          var data = createFormData(photo.assets, dataItems);
+          var data = createFormData(/* photo.assets,  */dataItems);
           
           var url = ENDPOINTS.signup;
       
@@ -157,7 +155,7 @@ export default function Profilefill({ route }) {
 
         <View>
 
-            <TouchableOpacity activeOpacity={0.9} onPress={() => handleChoosePhoto()}>
+            {/* <TouchableOpacity activeOpacity={0.9} onPress={() => handleChoosePhoto()}> */}
               {
                 photo !== null ? (
                   <Avatar image={{ uri: photo?.assets[0]?.uri }}
@@ -167,10 +165,10 @@ export default function Profilefill({ route }) {
                     size={100} style={{alignSelf:'center', marginVertical: 20}}></Avatar>
                 )
               }
-                <Image source={require('../../assets/image/Exclude.png')}
+                {/* <Image source={require('../../assets/image/Exclude.png')}
                resizeMode='stretch'
-               style={{height:height/32,width:width/15,position:'absolute',bottom:15,right:130}}></Image>
-            </TouchableOpacity>
+               style={{height:height/32,width:width/15,position:'absolute',bottom:15,right:130}}></Image> */}
+            {/* </TouchableOpacity> */}
 
             <View style={[style.txtinput,{borderColor: isFocused === 'First Name' ? Colors.primary : theme.input,backgroundColor: isFocused==='First Name' ?'#584CF410': theme.input,marginTop:20}]}>
             <TextInput placeholder='First Name'
@@ -200,12 +198,13 @@ export default function Profilefill({ route }) {
                     onFocus={() => setIsFocused('Username')}
                     onBlur={() => setIsFocused(false)}
                     onChangeText={onChangeUsername}
+                    autoCapitalize='none'
                     placeholderTextColor={Colors.disable}
                     style={[{paddingHorizontal:10,color:theme.txt,fontFamily:'Urbanist-Regular',flex:1}]}
             />
             </View>
 
-            <View style={[style.txtinput,{borderColor: isFocused === 'Gender' ? Colors.primary : theme.input,backgroundColor: isFocused ==='Gender' ?'#584CF410': theme.input,marginTop:20}]}>
+            {/* <View style={[style.txtinput,{borderColor: isFocused === 'Gender' ? Colors.primary : theme.input,backgroundColor: isFocused ==='Gender' ?'#584CF410': theme.input,marginTop:20}]}>
                 <DropDownPicker
                     open={openGender}
                     value={valueGender}
@@ -218,7 +217,7 @@ export default function Profilefill({ route }) {
                 />
             </View>
 
-            {/* <View style={[style.inputContainer,{borderColor: isFocused==='Date of Birth' ? Colors.primary : theme.input,borderWidth:1,backgroundColor: isFocused==='Date of Birth' ?'#584CF410': theme.input,marginTop:20}]}>
+            <View style={[style.inputContainer,{borderColor: isFocused==='Date of Birth' ? Colors.primary : theme.input,borderWidth:1,backgroundColor: isFocused==='Date of Birth' ?'#584CF410': theme.input,marginTop:20}]}>
                 <TextInput placeholder='Date of Birth'
                 onFocus={() => setIsFocused('Date of Birth')}
                 onBlur={() => setIsFocused(false)}
