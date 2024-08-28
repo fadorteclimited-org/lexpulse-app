@@ -34,9 +34,7 @@ export default function Home() {
     const [value, setValue] = useState(null);
     const [items, setItems] = useState([
         {label: 'Ghana', value: 'Ghana'},
-        {label: 'Kenya', value: 'Kenya'},
-        {label: 'Nigeria', value: 'Nigeria'},
-        {label: 'South Africa', value: 'South Africa'}
+        {label: 'Kenya', value: 'Kenya'}
     ]);
     const [selectedLanguage, setSelectedLanguage] = useState();
     

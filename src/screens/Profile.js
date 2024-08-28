@@ -131,7 +131,11 @@ export default function Profile() {
                             {
                                 profile ? (
                                     profile?.user ? (
-                                        <Image source={{ uri: profile?.user?.image[0] }} resizeMode='stretch' style={{ height: height / 7, width: width / 3.2, borderRadius: 100 }} />
+                                        profile?.user?.image[0] ? (
+                                            <Image source={{ uri: profile?.user?.image[0] }} resizeMode='stretch' style={{ height: height / 7, width: width / 3.2, borderRadius: 100 }} />
+                                        ) : (
+                                            <Image source={require('../../assets/image/user.png')} resizeMode='stretch' style={{ height: height / 7, width: width / 3.2 }} />
+                                        )
                                     ) : (
                                         <Image source={require('../../assets/image/user.png')} resizeMode='stretch' style={{ height: height / 7, width: width / 3.2, borderRadius: 100 }} />
                                     )
@@ -247,7 +251,7 @@ export default function Profile() {
                         </View>
                     </TouchableOpacity> */}
 
-                    <TouchableOpacity style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                    {/* <TouchableOpacity style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
                         <View style={{ flexDirection: 'row' }}>
                             <Icons name='eye-outline' size={25} color={theme.txt} />
                             <Text style={[style.b18, { color: theme.txt, marginLeft: 10 }]}>Dark Mode</Text>
@@ -264,7 +268,7 @@ export default function Profile() {
                             />
                         </View>
 
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
 
                     <TouchableOpacity onPress={() => navigation.navigate('Helpcenter')}
                         style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>

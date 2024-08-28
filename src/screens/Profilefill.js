@@ -71,7 +71,7 @@ export default function Profilefill({ route }) {
         if(firstName === '' || 
           lastName === '' || 
           username === '') {
-          onError('Please make sure all fields are filled out and update your profile pic.');
+          onError('Please make sure all fields are filled out.');
           onLoading(false);
           return;
         }
@@ -107,7 +107,7 @@ export default function Profilefill({ route }) {
             navigation.navigate('OtpVerification', { email: email, fromRoute: 'profile' });
           })
           .catch(error => {
-            
+            console.log(error);
             if (error.response) {
               if(error.response.status === 403) {
                   signOut();

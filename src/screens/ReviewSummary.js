@@ -170,9 +170,9 @@ export default function ReviewSummary({ route }) {
                                     <ActivityIndicator size="small" color="#ffffff" />
                                 </TouchableOpacity>
                             ) : (
-                                <TouchableOpacity onPress={() => saveTicket()}
+                                <TouchableOpacity onPress={() => navigation.navigate('Payment', { itemObj: item, ticketQuantities: ticketQuantities, totalPrice: totalPrice })}
                                 style={[style.btn, ]}>
-                                    <Text style={[style.btntxt, { color: Colors.secondary }]}>Continue</Text>
+                                    <Text style={[style.btntxt, { color: Colors.secondary }]}>Pay Now</Text>
                                 </TouchableOpacity>
                             )
                         }

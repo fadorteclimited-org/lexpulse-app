@@ -28,7 +28,7 @@ export default function Profile2({ route }) {
     const [loading, onLoading] = React.useState(false);
     const [error, onError] = React.useState('');
     const [firstName, onChangeFirstName] = React.useState(profile.user.firstName);
-    const [lastName, onChangeLastName] = React.useState(profile.user.firstName);
+    const [lastName, onChangeLastName] = React.useState(profile.user.lastName);
     const [isvisible, setIsVisible] = useState(false)
 
     const handleChoosePhoto = () => {
@@ -42,12 +42,14 @@ export default function Profile2({ route }) {
 
     const createFormData = (photo, body = {}) => {
       const data = new FormData();
-    
-      data.append('image', {
-        name: photo[0].fileName,
-        type: photo[0].type,
-        uri: Platform.OS === 'ios' ? photo[0].uri.replace('file://', '') : photo[0].uri,
-      });
+
+      if(photo !== null) {
+        data.append('image', {
+          name: photo[0].fileName,
+          type: photo[0].type,
+          uri: Platform.OS === 'ios' ? photo[0].uri.replace('file://', '') : photo[0].uri,
+        });
+      }
     
       Object.keys(body).forEach((key) => {
         data.append(key, body[key]);
@@ -81,7 +83,7 @@ export default function Profile2({ route }) {
             "lastName": lastName
           };
 
-          var data = createFormData(photo.assets, dataItems);
+          var data = createFormData((photo ? (photo.assets) : (null)), dataItems);
           
           var url = `${ENDPOINTS.signup}/${parsedValue.user.id}`;
       
@@ -90,6 +92,8 @@ export default function Profile2({ route }) {
             onLoading(false);
 
             setIsVisible(true);
+
+            console.log(res.data);
           })
           .catch(error => {
             console.log(error);
@@ -99,6 +103,12 @@ export default function Profile2({ route }) {
                   signOut();
                   return;
               }
+
+              if(error.response.status === 413) {
+                onLoading(false);
+                onError("Image is too loarge.");
+                return;
+            }
 
               onLoading(false);
               onError(error.response.data.msg);
@@ -149,8 +159,13 @@ export default function Profile2({ route }) {
                     ) : (
                         profile ? (
                             profile?.user ? (
+                              profile?.user?.image[0] ? (
                                 <Avatar image={{ uri: profile?.user?.image[0] }}
                                     size={100} style={{alignSelf:'center', marginVertical: 20}}></Avatar>
+                              ) : (
+                                <Avatar image={require('../../assets/image/user.png')}
+                                    size={100} style={{alignSelf:'center', marginVertical: 20}}></Avatar>
+                              )
                             ) : (
                                 <Avatar image={require('../../assets/image/user.png')}
                                     size={100} style={{alignSelf:'center', marginVertical: 20}}></Avatar>

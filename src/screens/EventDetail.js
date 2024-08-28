@@ -272,9 +272,9 @@ export default function EventDetail({ route }) {
                     <Text style={[style.apptitle,{color:theme.txt}]}>{item.eventName}</Text>
 
                     <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }}>
-                        <TouchableOpacity style={{ paddingHorizontal: 10, borderWidth: 1, borderColor: Colors.primary, borderRadius: 10, paddingVertical: 4, marginRight: 10 }}>
+                        {/* <View style={{ paddingHorizontal: 10, borderWidth: 1, borderColor: Colors.primary, borderRadius: 10, paddingVertical: 4, marginRight: 10 }}>
                             <Text style={[style.r12, { color: Colors.primary }]}>{item.category}</Text>
-                        </TouchableOpacity>
+                        </View> */}
                         <Image source={require('../../assets/image/pic.png')}
                             resizeMode='stretch'
                             style={{ height: height / 27, width: width / 3.5, marginHorizontal: 10 }}>
@@ -291,10 +291,10 @@ export default function EventDetail({ route }) {
                         <View style={{ marginHorizontal: 10 }}>
                             <Text style={[style.b18, { color: theme.txt }]}>{moment.utc(item.eventDate).local().format('dddd, MMMM DD, YYYY')}</Text>
                             <Text style={[style.r14, { color: theme.txt, marginVertical: 7 }]}>Event Date</Text>
-                            <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.primary, width: width / 2.1, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 20 }}>
+                            {/* <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.primary, width: width / 2.1, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 20 }}>
                                 <Icon name='calendar-sharp' color={Colors.secondary}></Icon>
-                                <Text style={[style.r14, { color: Colors.secondary, marginLeft: 10 }]}>Add to My Calendar</Text>
-                            </View>
+                                <Text style={[style.r14, { color: Colors.secondary, marginLeft: 10 }]}>Date and Time</Text>
+                            </View> */}
                         </View>
                     </View>
 
@@ -304,10 +304,10 @@ export default function EventDetail({ route }) {
                         <View style={{ marginHorizontal: 10 }}>
                             <Text style={[style.b18, { color: theme.txt }]}>{item.location}</Text>
                             <Text style={[style.r14, { color: theme.txt, marginVertical: 7 }]}>Event Location</Text>
-                            <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.primary, width: width / 1.9, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 20 }}>
+                            {/* <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.primary, width: width / 1.9, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 20 }}>
                                 <Icon name='calendar-sharp' color={Colors.secondary}></Icon>
-                                <Text style={[style.r14, { color: Colors.secondary, marginLeft: 10 }]}>See Location on Maps</Text>
-                            </View>
+                                <Text style={[style.r14, { color: Colors.secondary, marginLeft: 10 }]}>Venue and location</Text>
+                            </View> */}
                         </View>
                     </View>
 
@@ -371,18 +371,18 @@ export default function EventDetail({ route }) {
                         </View>
                     </View>
 
-                    <Text style={[style.subtitle, { color: theme.txt, marginTop: 20 }]}>Location</Text>
+                    {/* <Text style={[style.subtitle, { color: theme.txt, marginTop: 20 }]}>Location</Text>
 
                     <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10, marginBottom: 20 }}>
                         <Icon name='location' color={Colors.primary} size={20}></Icon>
                         <Text style={[style.r14, { color: theme.disable2, marginLeft: 5 }]}>{item.location}</Text>
                     </View>
-                    <TouchableOpacity /* onPress={() => navigation.navigate('EventLocation')} */>
+                    <TouchableOpacity>
                         <Image source={theme.location2}
                             resizeMode='stretch'
                             style={{ height: height / 4.7, width: width - 40 }}>
                         </Image>
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
 
                     <View style={{ marginVertical: 20 }} />
 

@@ -64,6 +64,7 @@ import Language from '../screens/Language';
 import SuccessfulBooking from '../screens/SuccessfulBooking';
 import FailedBooking from '../screens/FailedBooking';
 import SuccessfulOtpVerification from '../screens/SuccessfulOtpVerification';
+import PayTicket from '../screens/PayTicket';
 
 const Stack = createNativeStackNavigator();
 
@@ -232,6 +233,10 @@ export default function StackNavigator() {
           <Stack.Screen
             name="ReviewSummary"
             component={ReviewSummary}
+            options={{ headerShown: false }} />
+          <Stack.Screen
+            name="PayTicket"
+            component={PayTicket}
             options={{ headerShown: false }} />
           <Stack.Screen
             name="ETicket"
