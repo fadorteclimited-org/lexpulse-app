@@ -75,26 +75,26 @@ export default function Payment({ route }) {
             })
             .catch(error => {
             
-            if (error.response) {
-                if(error.response.status === 403) {
-                    signOut();
-                    return;
-                }
+                if (error.response) {
+                    if(error.response.status === 403) {
+                        signOut();
+                        return;
+                    }
 
-                onLoading(false);
-                onError(error.response.data.error);
-                navigation.navigate('FailedBooking');
-            } else if (error.request) {
-                console.log(error.request);
-                onLoading(false);
-                onError('Problem signing in. Please try later!');
-                navigation.navigate('FailedBooking');
-            } else {
-                console.log(error);
-                onLoading(false);
-                onError('Problem signing in. Please try later!');
-                navigation.navigate('FailedBooking');
-            }
+                    onLoading(false);
+                    onError(error.response.data.error);
+                    navigation.navigate('FailedBooking');
+                } else if (error.request) {
+                    console.log(error.request);
+                    onLoading(false);
+                    onError('Problem signing in. Please try later!');
+                    navigation.navigate('FailedBooking');
+                } else {
+                    console.log(error);
+                    onLoading(false);
+                    onError('Problem signing in. Please try later!');
+                    navigation.navigate('FailedBooking');
+                }
             });
             
         } catch (error) {
@@ -107,8 +107,8 @@ export default function Payment({ route }) {
     <SafeAreaView style={[style.area, { backgroundColor: theme.bg }]}>
         <View style={[style.main, { backgroundColor: theme.bg ,marginTop:20}]}>
             <Paystack  
-                paystackKey="pk_live_7531b0888eb0df5935732db49e74f555695adb73"
-                // paystackKey="pk_test_0d007b42a52a38d589cc0a4938040e1ff4406fdc"
+                // paystackKey="pk_live_7531b0888eb0df5935732db49e74f555695adb73"
+                paystackKey="pk_test_0d007b42a52a38d589cc0a4938040e1ff4406fdc"
                 amount={totalPrice}
                 billingEmail={userDets?.user?.email}
                 billingName={`${userDets?.user?.firstName} ${userDets?.user?.lastName}`}

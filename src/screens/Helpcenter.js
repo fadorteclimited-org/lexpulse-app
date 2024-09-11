@@ -221,7 +221,7 @@ const Contactus = () => {
         <SafeAreaView style={[style.area,{backgroundColor:theme.bg,}]}>
             <ScrollView nestedScrollEnabled={true} showsVerticalScrollIndicator={false}>
             <View style={{padding:5,marginTop:10}}>
-                <TouchableOpacity style={[style.shadow,{backgroundColor:theme.bg,padding:15,borderRadius:10,flexDirection:'row',alignItems:'center',justifyContent:'space-between'}]} activeOpacity={0.9} onPress={() => { Linking.openURL("maito:thelexpulseteam@fadorteclimited.com") }}>
+                <TouchableOpacity style={[style.shadow,{backgroundColor:theme.bg,padding:15,borderRadius:10,flexDirection:'row',alignItems:'center',justifyContent:'space-between'}]} activeOpacity={0.9} onPress={() => { Linking.openURL("mailto:thelexpulseteam@fadorteclimited.com") }}>
                     <Icon name='mail-outline' size={27} color={Colors.primary}></Icon>
                     <Text style={[style.b18,{color:theme.txt,flex:1,marginLeft:10}]}>Email</Text>
                 </TouchableOpacity>
